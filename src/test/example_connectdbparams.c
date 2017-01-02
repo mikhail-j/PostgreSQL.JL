@@ -167,7 +167,7 @@ int main (int argc, const char* argv[]) {
 			
 			PGconn* postgres_param_conn = PQconnectdbParams(keys, vals, 0);
 			postgres_conn_status(postgres_param_conn);
-			postgres_param_ping(keys,vals, 1);
+			postgres_param_ping(keys,vals, 0);
 			//clean up PGconn object
 			PQfinish(postgres_param_conn);
 			
