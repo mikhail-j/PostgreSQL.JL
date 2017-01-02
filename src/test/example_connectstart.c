@@ -1,5 +1,5 @@
 /*
-* This is an example of using PQconnectStart() (a blocking connection to the database).
+* This is an example of using PQconnectStart() (a non-blocking connection to the database).
 *
 * Copyright (C) 2016 Qijia (Michael) Jin
 * This program is free software; you can redistribute it and/or
