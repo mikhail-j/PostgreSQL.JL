@@ -179,7 +179,7 @@ int main (int argc, const char* argv[]) {
 		}
 	}
 	else {
-		printf("error: A filename was not given as an argument.\n\nUsage: example_connectdb [filename]\n");
+		printf("error: A filename was not given as an argument.\n\nUsage: example_connectdbparams [filename]\n");
 	}
 	return 0;
 }
