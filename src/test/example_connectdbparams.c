@@ -165,7 +165,7 @@ int main (int argc, const char* argv[]) {
 			const char * const * keys = (const char * const *)keywords;
 			const char * const * vals = (const char * const *)values;
 			
-			PGconn* postgres_param_conn = PQconnectdbParams(keys, vals, 1);
+			PGconn* postgres_param_conn = PQconnectdbParams(keys, vals, 0);
 			postgres_conn_status(postgres_param_conn);
 			postgres_param_ping(keys,vals, 1);
 			//clean up PGconn object
