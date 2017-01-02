@@ -77,7 +77,7 @@ int main (int argc, const char* argv[]) {
 	
 	//create valid URI connection string
 	
-	const char* connection_info = "postgresql://postgres:passwordhere@localhost/testdb";
+	const char* connection_info = "postgresql://postgres:passwordhere@localhost/dbname";
 
 	//use URI connection string to connect to database
 	
