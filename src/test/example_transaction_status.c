@@ -311,7 +311,7 @@ int main (int argc, const char* argv[]) {
 			postgres_server_version(postgres_nb_param_conn);
 			postgres_ssl_enabled(postgres_nb_param_conn);
 			
-			//run SQL statement with PQexec()
+			//run SQL statement with PQexec(), values are returned in text form
 			PGresult* first_sql_command;
 			first_sql_command = PQexec(postgres_nb_param_conn, "SELECT * FROM example_balance;");
 			postgres_result_status(first_sql_command);
