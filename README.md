@@ -1,6 +1,6 @@
 # PostgreSQL.jl
 
-######PostgreSQL library wrappers for Julia.
+######PostgreSQL.jl is a Julia library that wraps the libpq API. The library includes PostgreSQL object identifier definitions for checking the datatype of a specific column in a table.
 
 ##OS Support
 
@@ -8,7 +8,7 @@ This has only been tested on Windows.
 
 ##Progress
 
-This package is currently incomplete and require more work.
+This package is currently incomplete and requires more work.
 
 ##License
 
