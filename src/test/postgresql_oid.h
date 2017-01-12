@@ -91,6 +91,7 @@
 /* OIDS 1500 - 1599 */
 #define BITOID	 1560				//bit
 #define VARBITOID	  1562			//varbit
+
 /* OIDS 1600 - 1699 */
 
 /* OIDS 1700 - 1799 */
@@ -110,7 +111,7 @@
 /* uuid */
 #define UUIDOID 2950				//uuid
 
-/* pg_lsn */;
+/* pg_lsn */
 #define LSNOID			3220		//pg_lsn
 
 /* text search */
