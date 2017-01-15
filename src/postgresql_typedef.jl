@@ -161,7 +161,7 @@ end
 immutable PQArgBlock
 	len::Cint
 	isint::Cint
-	
+	intptr::PQArgBlockInt
 end
 
 #attributes used by PQsetResultAttrs()
