@@ -143,7 +143,7 @@ if (Sys.WORD_SIZE == 32)		#c pointers on 32 bit systems are 4 bytes wide
 	function getPQArgBlockInt(pqabi::PQArgBlockInt)	#PQArgBlock->u.integer
 		return pqabi.block;
 	end
-else if (Sys.WORD_SIZE == 64)	#c pointers on 64 bit systems are 8 bytes wide
+elseif (Sys.WORD_SIZE == 64)	#c pointers on 64 bit systems are 8 bytes wide
 	immutable PQArgBlockInt 
 		block0::Int32
 		block1::Int32		#should pad for 8 byte long pointer on 64 
