@@ -37,3 +37,13 @@ end
 function finish(conn::Ptr{PGconn})
 	ccall((:PQfinish, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
 end
+
+#reset blocking libpq connection
+function reset(conn::Ptr{PGconn})
+	ccall((:PQreset, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
+end
+
+#get status of libpq PGconn
+function status(conn::Ptr{PGconn})
+	return ccall((:PQstatus, PostgreSQL.lib.libpq), ConnStatusType, (Ptr{PGconn},), conn);
+end
