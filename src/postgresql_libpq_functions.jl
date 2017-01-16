@@ -26,7 +26,7 @@ end
 
 #start blocking libpq connection
 function connectdb(conninfo::Ptr{UInt8})
-	return ccall((:PQconnectdb, libpq), Ptr{PGconn}, (Ptr{UInt8},), conninfo);
+	return ccall((:PQconnectdb, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), conninfo);
 end
 
 function connectdbParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, expand_dbname::Cint)
