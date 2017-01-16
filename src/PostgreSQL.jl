@@ -26,4 +26,7 @@ include("oid_def.jl");
 #define PostgreSQL libpq's datatypes
 include("postgresql_typedef.jl");
 
+#define PostgreSQL libpq's functions
+include("postgresql_libpq_functions.jl");
+
 end
