@@ -17,11 +17,11 @@
 
 #start non-blocking libpq connection
 function connectStart(conninfo::Ptr{UInt8})
-	return ccall((:PQconnectStart, libpq), Ptr{PGconn}, (Ptr{UInt8},), conninfo);
+	return ccall((:PQconnectStart, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), conninfo);
 end
 
 function connectStartParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, expand_dbname::Cint)
-	return ccall((:PQconnectStartParams, libpq), Ptr{PGconn}, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
+	return ccall((:PQconnectStartParams, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
 end
 
 #start blocking libpq connection
@@ -30,10 +30,10 @@ function connectdb(conninfo::Ptr{UInt8})
 end
 
 function connectdbParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, expand_dbname::Cint)
-	return ccall((:PQconnectdbParams, libpq), Ptr{PGconn}, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
+	return ccall((:PQconnectdbParams, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
 end
 
 #free PGconn variable
 function finish(conn::Ptr{PGconn})
-	ccall((:PQfinish, libpq), Void, (Ptr{PGconn},), conn);
+	ccall((:PQfinish, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
 end
