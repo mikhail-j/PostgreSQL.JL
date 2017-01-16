@@ -16,6 +16,10 @@
 *=#
 
 #start non-blocking libpq connection
+function connectStart(conninfo::String)
+	return ccall((:PQconnectStart, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
+end
+
 function connectStart(conninfo::Ptr{UInt8})
 	return ccall((:PQconnectStart, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), conninfo);
 end
@@ -25,6 +29,10 @@ function connectStartParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, 
 end
 
 #start blocking libpq connection
+function connectdb(conninfo::String)
+	return ccall((:PQconnectdb, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
+end
+
 function connectdb(conninfo::Ptr{UInt8})
 	return ccall((:PQconnectdb, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), conninfo);
 end
