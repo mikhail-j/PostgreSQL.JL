@@ -86,6 +86,27 @@ const PQPING_REJECT			= PGPing(1);
 const PQPING_NO_RESPONSE	= PGPing(2);
 const PQPING_NO_ATTEMPT		= PGPing(3);
 
+#error field identifiers used by PQresultErrorField()
+typealias PGErrorField Cchar;
+const PG_DIAG_SEVERITY					= PGErrorField('S');
+const PG_DIAG_SEVERITY_NONLOCALIZED		= PGErrorField('V');
+const PG_DIAG_SQLSTATE					= PGErrorField('C');
+const PG_DIAG_MESSAGE_PRIMARY			= PGErrorField('M');
+const PG_DIAG_MESSAGE_DETAIL			= PGErrorField('D');
+const PG_DIAG_MESSAGE_HINT				= PGErrorField('H');
+const PG_DIAG_STATEMENT_POSITION		= PGErrorField('P');
+const PG_DIAG_INTERNAL_POSITION			= PGErrorField('p');
+const PG_DIAG_INTERNAL_QUERY			= PGErrorField('q');
+const PG_DIAG_CONTEXT					= PGErrorField('W');
+const PG_DIAG_SCHEMA_NAME				= PGErrorField('s');
+const PG_DIAG_TABLE_NAME				= PGErrorField('t');
+const PG_DIAG_COLUMN_NAME				= PGErrorField('c');
+const PG_DIAG_DATATYPE_NAME				= PGErrorField('d');
+const PG_DIAG_CONSTRAINT_NAME			= PGErrorField('n');
+const PG_DIAG_SOURCE_FILE				= PGErrorField('F');
+const PG_DIAG_SOURCE_LINE				= PGErrorField('L');
+const PG_DIAG_SOURCE_FUNCTION			= PGErrorField('R');
+
 typealias pqbool UInt8;
 
 #options for PQprint()
