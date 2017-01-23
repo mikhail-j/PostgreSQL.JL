@@ -23,12 +23,16 @@ include("load_lib.jl");
 #define PostgreSQL libpq's pg_type object identifiers
 include("oid_def.jl");
 
+export PQ;
+module PQ;
+
 #define PostgreSQL libpq's datatypes
 include("postgresql_typedef.jl");
 
-export PQ;
 
 #define PostgreSQL libpq's functions
 include("postgresql_libpq_functions.jl");
+
+end;	#end PQ module
 
 end

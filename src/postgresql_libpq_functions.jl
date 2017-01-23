@@ -15,9 +15,6 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
-export PQ;
-module PQ;
-
 #start non-blocking libpq connection
 function connectStart(conninfo::String)
 	return ccall((:PQconnectStart, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
@@ -130,4 +127,3 @@ function clear(res::Ptr{PGresult})
 	return ccall((:PQclear, PostgreSQL.lib.libpq), Void, (Ptr{PGresult},), res);
 end
 
-end;	#end PQ module
