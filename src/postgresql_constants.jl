@@ -15,8 +15,6 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
-export ConnStatusType, PostgresPollingStatusType, ExecStatusType, PGTransactionStatusType, PGVerbosity, PGContextVisibility, PGPing, PGErrorField;
-
 #flags used by PQcopyResult()
 const PG_COPYRES_ATTRS				= UInt8(0x01);
 const PG_COPYRES_TUPLES				= UInt8(0x02);
@@ -24,7 +22,6 @@ const PG_COPYRES_EVENTS				= UInt8(0x04);
 const PG_COPYRES_NOTICEHOOKS		= UInt8(0x08);
 
 #statuses used by PQstatus()
-typealias ConnStatusType Cuint;
 const CONNECTION_OK						= ConnStatusType(0);
 const CONNECTION_BAD					= ConnStatusType(1);
 const CONNECTION_STARTED				= ConnStatusType(2);
@@ -37,7 +34,6 @@ const CONNECTION_NEEDED					= ConnStatusType(8);
 const CONNECTION_CHECK_WRITABLE			= ConnStatusType(9);
 
 #statuses used by PQconnectPoll()
-typealias PostgresPollingStatusType Cuint;
 const PGRES_POLLING_FAILED		= PostgresPollingStatusType(0);
 const PGRES_POLLING_READING		= PostgresPollingStatusType(1);
 const PGRES_POLLING_WRITING		= PostgresPollingStatusType(2);
@@ -45,7 +41,6 @@ const PGRES_POLLING_OK			= PostgresPollingStatusType(3);
 const PGRES_POLLING_ACTIVE		= PostgresPollingStatusType(4);
 
 #statuses used by PQresultStatus()
-typealias ExecStatusType Cuint;
 const PGRES_EMPTY_QUERY		= ExecStatusType(0);
 const PGRES_COMMAND_OK		= ExecStatusType(1);
 const PGRES_TUPLES_OK		= ExecStatusType(2);
@@ -58,7 +53,6 @@ const PGRES_COPY_BOTH		= ExecStatusType(8);
 const PGRES_SINGLE_TUPLE	= ExecStatusType(9);
 
 #statuses used by PQtransactionStatus()
-typealias PGTransactionStatusType Cuint;
 const PQTRANS_IDLE		= PGTransactionStatusType(0);
 const PQTRANS_ACTIVE	= PGTransactionStatusType(1);
 const PQTRANS_INTRANS	= PGTransactionStatusType(2);
@@ -66,26 +60,22 @@ const PQTRANS_INERROR	= PGTransactionStatusType(3);
 const PQTRANS_UNKNOWN	= PGTransactionStatusType(4);
 
 #options used by PQsetErrorVerbosity()
-typealias PGVerbosity Cuint;
 const PQERRORS_TERSE	= PGVerbosity(0);
 const PQERRORS_DEFAULT	= PGVerbosity(1);
 const PQERRORS_VERBOSE	= PGVerbosity(2);
 
 #options used by PQsetErrorContextVisibility()
-typealias PGContextVisibility Cuint;
 const PQSHOW_CONTEXT_NEVER	= PGContextVisibility(0);
 const PQSHOW_CONTEXT_ERRORS	= PGContextVisibility(1);
 const PQSHOW_CONTEXT_ALWAYS	= PGContextVisibility(2);
 
 #statuses used by PQping() and PQpingParams()
-typealias PGPing Cuint;
 const PQPING_OK				= PGPing(0);
 const PQPING_REJECT			= PGPing(1);
 const PQPING_NO_RESPONSE	= PGPing(2);
 const PQPING_NO_ATTEMPT		= PGPing(3);
 
 #error field identifiers used by PQresultErrorField()
-typealias PGErrorField Cchar;
 const PG_DIAG_SEVERITY					= PGErrorField('S');
 const PG_DIAG_SEVERITY_NONLOCALIZED		= PGErrorField('V');
 const PG_DIAG_SQLSTATE					= PGErrorField('C');

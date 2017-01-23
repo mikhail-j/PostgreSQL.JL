@@ -15,13 +15,23 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
-export PGconn, PGresult, PGcancel, pqbool, PQOid, PQprintOpt, PGnotify, PQnotify, PQconninfoOption, PQArgBlockInt, PQArgBlock, PGresAttDesc;
+export PGconn, PGresult, PGcancel, pqbool, PQOid, PQprintOpt, PGnotify, PQnotify, PQconninfoOption, PQArgBlockInt, PQArgBlock, PGresAttDesc,
+	ConnStatusType, PostgresPollingStatusType, ExecStatusType, PGTransactionStatusType, PGVerbosity, PGContextVisibility, PGPing, PGErrorField;
 
 typealias PGconn Ptr{Void};
 typealias PGresult Ptr{Void};
 typealias PGcancel Ptr{Void};
 typealias pqbool UInt8;
 typealias PQOid Cuint;
+
+typealias ConnStatusType Cuint;
+typealias PostgresPollingStatusType Cuint;
+typealias ExecStatusType Cuint;
+typealias PGTransactionStatusType Cuint;
+typealias PGVerbosity Cuint;
+typealias PGContextVisibility Cuint;
+typealias PGPing Cuint;
+typealias PGErrorField Cchar;
 
 #options for PQprint()
 immutable PQprintOpt
