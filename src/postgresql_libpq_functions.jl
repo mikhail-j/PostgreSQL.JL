@@ -89,6 +89,21 @@ function status(conn::Ptr{PGconn})
 	return ccall((:PQstatus, PostgreSQL.lib.libpq), ConnStatusType, (Ptr{PGconn},), conn);
 end
 
+#get usable PGcancel object from a PGconn object
+function getCancel(conn::Ptr{PGconn})
+	return ccall((:PQgetCancel, PostgreSQL.lib.libpq), Ptr{PGcancel}, (Ptr{PGconn},), conn);
+end
+
+#free PGcancel variable
+function freeCancel(cancel::Ptr{PGcancel})
+	return ccall((:PQfreeCancel, PostgreSQL.lib.libpq), Void, (Ptr{PGcancel},), cancel);
+end
+
+#requests for cancellation of the current command being processed, 1 - request successfully sent/0 - otherwise
+function cancel(cancel::Ptr{PGcancel}, errbuf::Ptr{UInt8}, errbufsize::Cint)
+	return ccall((:PQcancel, PostgreSQL.lib.libpq), Cint, (Ptr{PGcancel}, Ptr{UInt8}, Cint,), cancel, errbuff, errbuffsize);
+end
+
 #free PGconn variable
 function finish(conn::Ptr{PGconn})
 	ccall((:PQfinish, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
