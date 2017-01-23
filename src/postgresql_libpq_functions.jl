@@ -87,7 +87,7 @@ function prepare(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, query::Ptr{UInt8}, nPa
 end
 
 #execute a prepared SQL statement
-function execPrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, nParams::Cint, paramValues::Ptr{Ptr{UInt8}} paramLengths::Ptr{Cint}, paramFormats::Ptr{Cint}, resultFormat::Cint)
+function execPrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, nParams::Cint, paramValues::Ptr{Ptr{UInt8}}, paramLengths::Ptr{Cint}, paramFormats::Ptr{Cint}, resultFormat::Cint)
 	return ccall((:PQexecPrepared, PostgreSQL.lib.libpq),
 			Ptr{PGresult},
 			(Ptr{PGconn}, Ptr{UInt8}, Cint, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
