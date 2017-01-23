@@ -44,6 +44,32 @@ function connectStartParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, 
 	return ccall((:PQconnectStartParams, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
 end
 
+#argument is the name of the file that has parameters delimited by '=' to separate keywords and values
+function connectStartParams(filename::String)
+	local param_count = countParams(filename);
+	local keywords = Array(Ptr{UInt8}, param_count+Int64(1));
+	local values = Array(Ptr{UInt8}, param_count+Int64(1));
+	file_ref = open(filename, "r");
+	array_index = Int64(1);
+	while (!eof(file_ref))
+		current_line = strip(readline(file_ref));
+		if (length(current_line) != 0 && current_line[1] != '#')
+			equal_dlm = searchindex(current_line, '=');
+			if (equal_dlm == 1)		#keyword not found!
+				error("connectStartParams() keyword not found!");
+			elseif (equal_dlm != 0)
+				keywords[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[1:equal_dlm-1]);
+				values[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[equal_dlm+1:end]);
+				array_index = array_index + Int64(1);
+			end
+		end
+	end
+	keywords[array_index] = Ptr{UInt8}(C_NULL);		#has to be null terminated
+	values[array_index] = Ptr{UInt8}(C_NULL);		#has to be null terminated
+	close(file_ref);
+	return connectStartParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
+end
+
 #start blocking libpq connection
 function connectdb(conninfo::String)
 	return ccall((:PQconnectdb, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
@@ -139,7 +165,7 @@ function pingParams(filename::String)
 		if (length(current_line) != 0 && current_line[1] != '#')
 			equal_dlm = searchindex(current_line, '=');
 			if (equal_dlm == 1)		#keyword not found!
-				error("connectdbParams() keyword not found!");
+				error("pingParams() keyword not found!");
 			elseif (equal_dlm != 0)
 				keywords[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[1:equal_dlm-1]);
 				values[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[equal_dlm+1:end]);
