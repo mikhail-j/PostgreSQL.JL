@@ -17,6 +17,8 @@
 
 module PostgreSQL
 
+export PQ;
+
 #load PostgreSQL library (libpq)
 include("load_lib.jl");
 
@@ -26,7 +28,6 @@ include("postgresql_typedef.jl");
 #define PostgreSQL libpq's constants
 include("postgresql_constants.jl");
 
-export PQ;
 
 module PQ;
 
