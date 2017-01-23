@@ -84,8 +84,8 @@ function execParams(conn::Ptr{PGconn}, command::Ptr{UInt8}, nParams::Cint, param
 end
 
 #prepare SQL statement, function blocks until PGresult is received (unless returned C_NULL)
-function prepare(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, query::Ptr{UInt8}, nParams::Cint, paramTypes::Ptr{Oid})
-	return ccall((:PQprepare, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{Oid},), conn, stmtName, query, nParams, paramTypes);
+function prepare(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, query::Ptr{UInt8}, nParams::Cint, paramTypes::Ptr{PQOid})
+	return ccall((:PQprepare, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PQOid},), conn, stmtName, query, nParams, paramTypes);
 end
 
 #execute a prepared SQL statement
