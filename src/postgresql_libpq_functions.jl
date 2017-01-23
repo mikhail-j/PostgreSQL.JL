@@ -115,6 +115,16 @@ function status(conn::Ptr{PGconn})
 	return ccall((:PQstatus, PostgreSQL.lib.libpq), ConnStatusType, (Ptr{PGconn},), conn);
 end
 
+#get transaction status of libpq PGconn
+function transactionStatus(conn::Ptr{PGconn})
+	return ccall((:PQtransactionStatus, PostgreSQL.lib.libpq), PGTransactionStatusType, (Ptr{PGconn},), conn);
+end
+
+#get polling status of non-blocking libpq connection
+function connectPoll(conn::PGconn)
+	return ccall((:PQconnectPoll, PostgreSQL.lib.libpq), PostgresPollingStatusType, (Ptr{PGconn},), conn);
+end
+
 #get usable PGcancel object from a PGconn object
 function getCancel(conn::Ptr{PGconn})
 	return ccall((:PQgetCancel, PostgreSQL.lib.libpq), Ptr{PGcancel}, (Ptr{PGconn},), conn);
@@ -235,5 +245,10 @@ end
 #clean up given PGresult and free it
 function clear(res::Ptr{PGresult})
 	return ccall((:PQclear, PostgreSQL.lib.libpq), Void, (Ptr{PGresult},), res);
+end
+
+#check if SSL is enabled on libpq connection
+function sslInUse(conn::Ptr{PGconn})
+	return ccall((:PQsslInUse, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
 end
 
