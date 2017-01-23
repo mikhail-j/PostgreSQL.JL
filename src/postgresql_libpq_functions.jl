@@ -66,7 +66,7 @@ function ping(conninfo::Ptr{UInt8})
 end
 
 function pingParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, expand_dbname::Cint)
-	return ccall((:PQpingParams, PostgreSQL.lib.libpq), PGPing, (Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
+	return ccall((:PQpingParams, PostgreSQL.lib.libpq), PGPing, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
 end
 
 #send SQL command over PGconn
