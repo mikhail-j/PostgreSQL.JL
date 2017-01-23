@@ -15,12 +15,13 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
-export PGconn, PGresult, PGcancel, pqbool, PQprintOpt, PGnotify, PQnotify, PQconninfoOption, PQArgBlockInt, PQArgBlock, PGresAttDesc;
+export PGconn, PGresult, PGcancel, pqbool, PQOid, PQprintOpt, PGnotify, PQnotify, PQconninfoOption, PQArgBlockInt, PQArgBlock, PGresAttDesc;
 
 typealias PGconn Ptr{Void};
 typealias PGresult Ptr{Void};
 typealias PGcancel Ptr{Void};
 typealias pqbool UInt8;
+typealias PQOid Cuint;
 
 #options for PQprint()
 immutable PQprintOpt
@@ -101,10 +102,10 @@ end
 #attributes used by PQsetResultAttrs()
 immutable PGresAttDesc
 	name::Ptr{UInt8}
-	tableid::PQ.Oid
+	tableid::PQOid
 	columnid::Cint
 	format::Cint
-	typid::PQ.Oid
+	typid::PQOid
 	typlen::Cint
 	atttypmod::Cint
 end
