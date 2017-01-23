@@ -101,10 +101,10 @@ end
 #attributes used by PQsetResultAttrs()
 immutable PGresAttDesc
 	name::Ptr{UInt8}
-	tableid::Oid
+	tableid::PQ.Oid
 	columnid::Cint
 	format::Cint
-	typid::Oid
+	typid::PQ.Oid
 	typlen::Cint
 	atttypmod::Cint
 end
