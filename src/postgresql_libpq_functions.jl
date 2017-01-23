@@ -17,6 +17,20 @@
 
 using PostgreSQL;
 
+#count the number of parameters in given file for connectdbParams() and pingParams()
+function countParams(filename::String)
+	local count = Int64(0);
+	local file_ref = open(filename, "r");
+	while (!eof(file_ref))
+		current_line = strip(readline(file_ref));
+		if (length(current_line) != 0 && current_line[1] != '#')
+			count = count + Int64(1);
+		end
+	end
+	close(file_ref);
+	return count;
+end
+
 #start non-blocking libpq connection
 function connectStart(conninfo::String)
 	return ccall((:PQconnectStart, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
@@ -42,6 +56,33 @@ end
 function connectdbParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, expand_dbname::Cint)
 	return ccall((:PQconnectdbParams, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
 end
+
+#argument is the name of the file that has parameters delimited by '=' to separate keywords and values
+function connectdbParams(filename::String)
+	local param_count = countParams(filename);
+	local keywords = Array(Ptr{UInt8}, param_count+Int64(1));
+	local values = Array(Ptr{UInt8}, param_count+Int64(1));
+	local file_ref = open(filename, "r");
+	local array_index = Int64(1);
+	while (!eof(file_ref))
+		current_line = strip(readline(file_ref));
+		if (length(current_line) != 0 && current_line[1] != '#')
+			equal_dlm = searchindex(current_line, '=');
+			if (equal_dlm == 1)		#keyword not found!
+				error("connectdbParams() keyword not found!");
+			elseif (equal_dlm != 0)
+				keywords[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[1:equal_dlm-1]);
+				values[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[equal_dlm+1:end]);
+				array_index = array_index + Int64(1);
+			end
+		end
+	end
+	keywords[array_index] = Ptr{UInt8}(C_NULL);		#has to be null terminated
+	values[array_index] = Ptr{UInt8}(C_NULL);		#has to be null terminated
+	close(file_ref);
+	return connectdbParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
+end
+
 
 #get status of libpq PGconn
 function status(conn::Ptr{PGconn})
@@ -69,6 +110,32 @@ end
 
 function pingParams(keywords::Ptr{Ptr{UInt8}}, values::Ptr{Ptr{UInt8}}, expand_dbname::Cint)
 	return ccall((:PQpingParams, PostgreSQL.lib.libpq), PGPing, (Ptr{Ptr{UInt8}}, Ptr{Ptr{UInt8}}, Cint,), keywords, values, expand_dbname);
+end
+
+#argument is the name of the file that has parameters delimited by '=' to separate keywords and values
+function pingParams(filename::String)
+	local param_count = countParams(filename);
+	local keywords = Array(Ptr{UInt8}, param_count+Int64(1));
+	local values = Array(Ptr{UInt8}, param_count+Int64(1));
+	file_ref = open(filename, "r");
+	array_index = Int64(1);
+	while (!eof(file_ref))
+		current_line = strip(readline(file_ref));
+		if (length(current_line) != 0 && current_line[1] != '#')
+			equal_dlm = searchindex(current_line, '=');
+			if (equal_dlm == 1)		#keyword not found!
+				error("connectdbParams() keyword not found!");
+			elseif (equal_dlm != 0)
+				keywords[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[1:equal_dlm-1]);
+				values[array_index] = Base.unsafe_convert(Ptr{UInt8}, current_line[equal_dlm+1:end]);
+				array_index = array_index + Int64(1);
+			end
+		end
+	end
+	keywords[array_index] = Ptr{UInt8}(C_NULL);		#has to be null terminated
+	values[array_index] = Ptr{UInt8}(C_NULL);		#has to be null terminated
+	close(file_ref);
+	return pingParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
 end
 
 #send SQL command over PGconn
