@@ -15,6 +15,8 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
+export PGconn, PGresult, PGcancel, PG_COPYRES_ATTRS, PG_COPYRES_TUPLES, PG_COPYRES_EVENTS, PG_COPYRES_NOTICEHOOKS;
+
 typealias PGconn Ptr{Void};
 typealias PGresult Ptr{Void};
 typealias PGcancel Ptr{Void};

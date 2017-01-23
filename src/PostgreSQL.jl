@@ -23,8 +23,6 @@ include("load_lib.jl");
 #define PostgreSQL libpq's pg_type object identifiers
 include("oid_def.jl");
 
-export PGconn, PGresult, PGcancel, PG_COPYRES_ATTRS, PG_COPYRES_TUPLES, PG_COPYRES_EVENTS, PG_COPYRES_NOTICEHOOKS;
-
 #define PostgreSQL libpq's datatypes
 include("postgresql_typedef.jl");
 
