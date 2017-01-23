@@ -15,6 +15,8 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
+import PostgreSQL: PQOid;
+
 # OIDS 000 - 099 #
 const BOOLOID			= PQOid(16);			#bool
 const BYTEAOID			= PQOid(17);			#bytea
