@@ -15,98 +15,11 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
+export PGconn, PGresult, PGcancel, pqbool, PQprintOpt, PGnotify, PQnotify, PQconninfoOption, PQArgBlockInt, PQArgBlock, PGresAttDesc;
+
 typealias PGconn Ptr{Void};
 typealias PGresult Ptr{Void};
 typealias PGcancel Ptr{Void};
-
-#flags used by PQcopyResult()
-const PG_COPYRES_ATTRS				= UInt8(0x01);
-const PG_COPYRES_TUPLES				= UInt8(0x02);
-const PG_COPYRES_EVENTS				= UInt8(0x04);
-const PG_COPYRES_NOTICEHOOKS		= UInt8(0x08);
-
-#statuses used by PQstatus()
-typealias ConnStatusType Cuint;
-const CONNECTION_OK						= ConnStatusType(0);
-const CONNECTION_BAD					= ConnStatusType(1);
-const CONNECTION_STARTED				= ConnStatusType(2);
-const CONNECTION_MADE					= ConnStatusType(3);
-const CONNECTION_AWAITING_RESPONSE		= ConnStatusType(4);
-const CONNECTION_AUTH_OK				= ConnStatusType(5);
-const CONNECTION_SETENV					= ConnStatusType(6);
-const CONNECTION_SSL_STARTUP			= ConnStatusType(7);
-const CONNECTION_NEEDED					= ConnStatusType(8);
-const CONNECTION_CHECK_WRITABLE			= ConnStatusType(9);
-
-#statuses used by PQconnectPoll()
-typealias PostgresPollingStatusType Cuint;
-const PGRES_POLLING_FAILED		= PostgresPollingStatusType(0);
-const PGRES_POLLING_READING		= PostgresPollingStatusType(1);
-const PGRES_POLLING_WRITING		= PostgresPollingStatusType(2);
-const PGRES_POLLING_OK			= PostgresPollingStatusType(3);
-const PGRES_POLLING_ACTIVE		= PostgresPollingStatusType(4);
-
-#statuses used by PQresultStatus()
-typealias ExecStatusType Cuint;
-const PGRES_EMPTY_QUERY		= ExecStatusType(0);
-const PGRES_COMMAND_OK		= ExecStatusType(1);
-const PGRES_TUPLES_OK		= ExecStatusType(2);
-const PGRES_COPY_OUT		= ExecStatusType(3);
-const PGRES_COPY_IN			= ExecStatusType(4);
-const PGRES_BAD_RESPONSE	= ExecStatusType(5);
-const PGRES_NONFATAL_ERROR	= ExecStatusType(6);
-const PGRES_FATAL_ERROR		= ExecStatusType(7);
-const PGRES_COPY_BOTH		= ExecStatusType(8);
-const PGRES_SINGLE_TUPLE	= ExecStatusType(9);
-
-#statuses used by PQtransactionStatus()
-typealias PGTransactionStatusType Cuint;
-const PQTRANS_IDLE		= PGTransactionStatusType(0);
-const PQTRANS_ACTIVE	= PGTransactionStatusType(1);
-const PQTRANS_INTRANS	= PGTransactionStatusType(2);
-const PQTRANS_INERROR	= PGTransactionStatusType(3);
-const PQTRANS_UNKNOWN	= PGTransactionStatusType(4);
-
-#options used by PQsetErrorVerbosity()
-typealias PGVerbosity Cuint;
-const PQERRORS_TERSE	= PGVerbosity(0);
-const PQERRORS_DEFAULT	= PGVerbosity(1);
-const PQERRORS_VERBOSE	= PGVerbosity(2);
-
-#options used by PQsetErrorContextVisibility()
-typealias PGContextVisibility Cuint;
-const PQSHOW_CONTEXT_NEVER	= PGContextVisibility(0);
-const PQSHOW_CONTEXT_ERRORS	= PGContextVisibility(1);
-const PQSHOW_CONTEXT_ALWAYS	= PGContextVisibility(2);
-
-#statuses used by PQping() and PQpingParams()
-typealias PGPing Cuint;
-const PQPING_OK				= PGPing(0);
-const PQPING_REJECT			= PGPing(1);
-const PQPING_NO_RESPONSE	= PGPing(2);
-const PQPING_NO_ATTEMPT		= PGPing(3);
-
-#error field identifiers used by PQresultErrorField()
-typealias PGErrorField Cchar;
-const PG_DIAG_SEVERITY					= PGErrorField('S');
-const PG_DIAG_SEVERITY_NONLOCALIZED		= PGErrorField('V');
-const PG_DIAG_SQLSTATE					= PGErrorField('C');
-const PG_DIAG_MESSAGE_PRIMARY			= PGErrorField('M');
-const PG_DIAG_MESSAGE_DETAIL			= PGErrorField('D');
-const PG_DIAG_MESSAGE_HINT				= PGErrorField('H');
-const PG_DIAG_STATEMENT_POSITION		= PGErrorField('P');
-const PG_DIAG_INTERNAL_POSITION			= PGErrorField('p');
-const PG_DIAG_INTERNAL_QUERY			= PGErrorField('q');
-const PG_DIAG_CONTEXT					= PGErrorField('W');
-const PG_DIAG_SCHEMA_NAME				= PGErrorField('s');
-const PG_DIAG_TABLE_NAME				= PGErrorField('t');
-const PG_DIAG_COLUMN_NAME				= PGErrorField('c');
-const PG_DIAG_DATATYPE_NAME				= PGErrorField('d');
-const PG_DIAG_CONSTRAINT_NAME			= PGErrorField('n');
-const PG_DIAG_SOURCE_FILE				= PGErrorField('F');
-const PG_DIAG_SOURCE_LINE				= PGErrorField('L');
-const PG_DIAG_SOURCE_FUNCTION			= PGErrorField('R');
-
 typealias pqbool UInt8;
 
 #options for PQprint()

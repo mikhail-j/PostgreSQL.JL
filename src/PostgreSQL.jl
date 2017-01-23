@@ -20,17 +20,18 @@ module PostgreSQL
 #load PostgreSQL library (libpq)
 include("load_lib.jl");
 
+#define PostgreSQL libpq's datatypes
+include("postgresql_typedef.jl");
+
+#define PostgreSQL libpq's constants
+include("postgresql_constants.jl");
+
 export PQ;
 
 module PQ;
 
 #define PostgreSQL libpq's pg_type object identifiers
 include("oid_def.jl");
-
-
-#define PostgreSQL libpq's datatypes
-include("postgresql_typedef.jl");
-
 
 #define PostgreSQL libpq's functions
 include("postgresql_libpq_functions.jl");
