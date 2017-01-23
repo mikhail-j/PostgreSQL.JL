@@ -15,6 +15,8 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
+using PostgreSQL;
+
 #flags used by PQcopyResult()
 const PG_COPYRES_ATTRS				= UInt8(0x01);
 const PG_COPYRES_TUPLES				= UInt8(0x02);
