@@ -131,6 +131,15 @@ function transactionStatus(conn::Ptr{PGconn})
 	return ccall((:PQtransactionStatus, PostgreSQL.lib.libpq), PGTransactionStatusType, (Ptr{PGconn},), conn);
 end
 
+#get string form of the parameter of the postgresql server corresponding to the given parameter name, a list of these parameters can be found at https://www.postgresql.org/docs/9.5/static/libpq-status.html
+function parameterStatus(conn::Ptr{PGconn}, paramName::Ptr{UInt8})
+	return unsafe_string(ccall((:PQparameterStatus, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8},), conn, paramName));
+end
+
+function parameterStatus(conn::Ptr{PGconn}, paramName::String)
+	return unsafe_string(ccall((:PQparameterStatus, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, paramName)));
+end
+
 #get the database name associated with the libpq connection
 function db(conn::Ptr{PGconn})
 	return unsafe_string(ccall((:PQdb, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
