@@ -131,6 +131,25 @@ function transactionStatus(conn::Ptr{PGconn})
 	return ccall((:PQtransactionStatus, PostgreSQL.lib.libpq), PGTransactionStatusType, (Ptr{PGconn},), conn);
 end
 
+#get client encoding ID
+function clientEncoding(conn::Ptr{PGconn})
+	return ccall((:PQclientEncoding, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
+#get string form of encoding based on encoding ID that is returned from clientEncoding()
+function encoding_to_char(encoding_id::Cint)
+	return unsafe_string(ccall((:pg_encoding_to_char, PostgreSQL.lib.libpq), Ptr{UInt8}, (Cint,), encoding_id));
+end
+
+#set client encoding given encoding string, returns 0 on success and -1 otherwise
+function setClientEncoding(conn::Ptr{PGconn}, encoding::Ptr{UInt8})
+	return ccall((:PQsetClientEncoding, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, encoding);
+end
+
+function setClientEncoding(conn::Ptr{PGconn}, encoding::String)
+	return ccall((:PQsetClientEncoding, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, encoding));
+end
+
 #get string form of the parameter of the postgresql server corresponding to the given parameter name, a list of these parameters can be found at https://www.postgresql.org/docs/9.5/static/libpq-status.html
 function parameterStatus(conn::Ptr{PGconn}, paramName::Ptr{UInt8})
 	return unsafe_string(ccall((:PQparameterStatus, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8},), conn, paramName));
@@ -518,7 +537,7 @@ function sslAttributeNames(conn::Ptr{PGconn})
 	local index = 1;
 	local jstr_array = Array{String, 1}();
 	while (unsafe_load(ptr_ptr, index) != Ptr{UInt8}(C_NULL))		#keep converting pointers to julia strings until the pointer points at null
-		jstr_array = vcat(jstr_array, deepcopy(unsafe_string(unsafe_load(ptr_ptr, index))));
+		jstr_array = vcat(jstr_array, unsafe_string(unsafe_load(ptr_ptr, index)));
 		index = index + 1;
 	end
 	return jstr_array;
