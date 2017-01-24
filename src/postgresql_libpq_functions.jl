@@ -488,12 +488,13 @@ end
 *	The following are miscellaneous functions found on https://www.postgresql.org/docs/9.5/static/libpq-misc.html
 *=#
 
-"""
-	freemem() frees memory variables previously allocated by libpq.
-
-	The following converts pointers of type T to Ptr{Void} in consideration of the pointer difference between 32-bit and 64-bit systems.
-
-"""
+#=*
+*
+*	freemem() frees memory variables previously allocated by libpq.
+*
+*	The following converts pointers of type T to Ptr{Void} in consideration of the pointer difference between 32-bit and 64-bit systems.
+*
+*=#
 if (Sys.WORD_SIZE == 32)
 	function freemem{T}(ptr::Ptr{T})
 		return ccall((:PQfreemem, PostgreSQL.lib.libpq), Void, (Ptr{Void},), Ptr{Void}(convert(UInt32, ptr)));
