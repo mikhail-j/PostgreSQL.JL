@@ -239,6 +239,16 @@ function resStatus(status::ExecStatusType)
 	return unsafe_string(ccall((:PQresStatus, PostgreSQL.lib.libpq), Ptr{UInt8}, (ExecStatusType,), status));
 end
 
+#get string form of PQresult error message
+function resultErrorMessage(res::Ptr{PGresult})
+	return unsafe_string(ccall((:PQresultErrorMessage, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult},), res));
+end
+
+#get string form of PQresult error message, this function allows you to specify the verbosity of the error message
+function resultVerboseErrorMessage(res::Ptr{PGresult}, verbosity::PGVerbosity, show_context::PGContextVisibility)
+	return unsafe_string(ccall((:PQresultVerboseErrorMessage, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult}, PGVerbosity, PGContextVisibility,), res, verbosity, show_context));
+end
+
 #get error corresponding to PQresult and error field identifier
 function resultErrorField(res::Ptr{PGresult}, fieldcode::Cint)
 	return unsafe_string(ccall((:PQresultErrorField, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult}, Cint,), res, fieldcode));
