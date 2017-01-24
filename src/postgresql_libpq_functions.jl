@@ -160,6 +160,11 @@ function isnonblocking(conn::Ptr{PGconn})
 	return ccall((:PQisnonblocking, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
 end
 
+#check if the loaded libpq library is thread safe, returns 1 if true and 0 if false
+function isthreadsafe()
+	return cccall((:PQisthreadsafe, PostgreSQL.lib.libpq), Cint, (,),);
+end
+
 #ping for status of postgresql server
 function ping(conninfo::String)
 	return ccall((:PQping, PostgreSQL.lib.libpq), PGPing, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
