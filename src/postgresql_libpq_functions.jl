@@ -305,6 +305,106 @@ function fnumber(res::Ptr{PGresult}, column_name::String)
 	return ccall((:PQfnumber, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Ptr{UInt8},), res, Base.unsafe_convert(Ptr{UInt8}, column_name));
 end
 
+#get the table PQOid corresponding to the given column number
+function ftable(res::Ptr{PGresult}, column_number::Cint)
+	return ccall((:PQftable, PostgreSQL.lib.libpq), PQOid, (Ptr{PGresult}, Cint,), res, column_number);
+end
+
+"""
+	ftablecol() gets the column number in the original table of a query result column.
+	
+	Although queried results have columns starting from 0, table column numbers are nonzero numbers.
+	
+	This function returns 0 if the specified column was not found or your libpq protocol version is earlier than 3.0, https://www.postgresql.org/docs/9.5/static/libpq-exec.html
+	
+"""
+function ftablecol(res::Ptr{PGresult}, column_number::Cint)
+	return ccall((:PQftablecol, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Cint,), res, column_number);
+end
+
+#check if the column corresponding the the column number is in binary (1) or text (0)
+function fformat(res::Ptr{PGresult}, column_number::Cint)
+	return ccall((:PQfformat, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Cint,), res, column_number);
+end
+
+#get size of allocated bytes in column specified by the column number
+function fsize(res::Ptr{PGresult}, column_number::Cint)
+	return ccall((:PQfsize, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Cint,), res, column_number);
+end
+
+#get type modifier of column, returns -1 to indicate "no information available" or the column's datatype doesn't use modifiers
+function fmod(res::Ptr{PGresult}, column_number::Cint)
+	return ccall((:PQfmod, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Cint,), res, column_number);
+end
+
+#get the datatype PQOid corresponding to the column number
+function ftype(res::Ptr{PGresult}, field_num::Cint)
+	return ccall((:PQftype, PostgreSQL.lib.libpq), PQOid, (Ptr{PGresult}, Cint), res, field_number);
+end
+
+"""
+	getvalue() gets the value of the element/field corresponding to the row and column number (column and row numbers start from 0) given as a Ptr{UInt8}.
+	
+	To change Ptr{UInt8} to Ptr{T}, use
+		
+		Ptr{T}(convert(UInt64, PQ.getvalue(res, rn, cn)));		#64-bit system
+
+		or
+		
+		Ptr{T}(convert(UInt32, PQ.getvalue(res, rn, cn)));		#32-bit system
+
+	The libpq documentation recommends that any data that needs be used later should be explicitly copied to another allocated memory space.
+
+"""
+function getvalue(res::Ptr{PGresult}, row_number::Cint, column_number::Cint)
+	return ccall((:PQgetvalue, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult}, Cint, Cint,), res, row_number, column_number);
+end
+
+#check if specific element/field corresponding to the row and column number given is a null, returning 1 if it is a null and 0 otherwise
+function getisnull(res::Ptr{PGresult}, row_number::Cint, column_number::Cint)
+	return ccall((:PQgetisnull, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Cint, Cint,), res, row_number, column_number);
+end
+
+#get the actual length (number of bytes) of a field/element value corresponding to the row and column number given
+function getlength(res::Ptr{PGresult}, row_number::Cint, column_number::Cint)
+	return ccall((:PQgetlength, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Cint, Cint,), res, row_number, column_number);
+end
+
+#get the number of parameters in a prepared statement, returns 0 if not used on a PGresult returned by PQdescribePrepared()
+function nparams(res::Ptr{PGresult})
+	return ccall((:PQnparams, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult},), res);
+end
+
+#get the datatype PQOid of the parameter corresponding to the parameter number (parameter numbers start at 0), returns 0 if not used on a PGresult returned by PQdescribePrepared()
+function paramtype(res::Ptr{PGresult}, param_number::Cint)
+	return ccall((:PQparamtype, PostgreSQL.lib.libpq), PQOid, (Ptr{PGresult}, Cint,), res, param_number);
+end
+
+#get string form of the command status tag from SQL command used to create the given PGresult
+function cmdStatus(res::Ptr{PGresult})
+	return unsafe_string(ccall((:PQcmdStatus, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult},), res));
+end
+
+#get string form of the number of rows affected by the SQL command used to create the given PGresult
+function cmdTuples(res::Ptr{PGresult})
+	return unsafe_string(ccall((:PQcmdTuples, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult},), res));
+end
+
+"""
+	oidStatus() gets the string form of PQOid of the inserted row.
+	
+	This function is deprecated and not thread safe according to libpq documentation.
+
+"""
+function oidStatus(res::Ptr{PGresult})
+	return unsafe_string(ccall((:PQoidStatus, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult},), res));
+end
+
+#get PQOid of the inserted row if the SQL command was INSERT a EXECUTE on a prepared INSERT SQL command that inserted only 1 row, returns InvalidOid otherwise
+function oidValue(res::Ptr{PGresult})
+	return ccall((:PQoidValue, PostgreSQL.lib.libpq), PQOid, (Ptr{PGresult},), res);
+end
+
 #clean up given PGresult and free it
 function clear(res::Ptr{PGresult})
 	return ccall((:PQclear, PostgreSQL.lib.libpq), Void, (Ptr{PGresult},), res);
