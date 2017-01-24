@@ -162,7 +162,7 @@ end
 
 #check if the loaded libpq library is thread safe, returns 1 if true and 0 if false
 function isthreadsafe()
-	return cccall((:PQisthreadsafe, PostgreSQL.lib.libpq), Cint, (,),);
+	return cccall((:PQisthreadsafe, PostgreSQL.lib.libpq), Cint, (,));
 end
 
 #ping for status of postgresql server
