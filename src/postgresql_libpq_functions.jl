@@ -145,7 +145,7 @@ end
 """
 	conninfoParse() gets the connection options based on a valid PQconnectdb() connection string and returns NULL on success.
 
-	errmsg and the returned Ptr{PQconninfoOption} are C_NULL when the function failed to allocate enough memory.
+	The Ptr{UInt8} in errmsg and the returned Ptr{PQconninfoOption} are C_NULL when the function failed to allocate enough memory.
 
 	The libpq documentation recommends that the allocated errmsg should be freed by PQ.freemem() and the allocated Ptr{PQconninfoOption} be freed by PQ.conninfoFree().
 
@@ -156,6 +156,21 @@ end
 
 function conninfoParse(conninfo::String, errmsg::Ptr{Ptr{UInt8}})
 	return ccall((:PQconninfoParse, PostgreSQL.lib.libpq), Ptr{PQconninfoOption}, (Ptr{UInt8}, Ptr{Ptr{UInt8}},), Base.unsafe_convert(Ptr{UInt8}, conninfo), errmsg);
+end
+
+#=*
+*
+*	A Ptr{UInt8} array of 1 element is an alternative to a allocated Ptr{Ptr{UInt8}} object returned by Libc.malloc(sizeof(Ptr{Ptr{UInt8}})).
+*
+*	Using an allocated memory space returned by Libc.malloc() requires the Ptr{Ptr{UInt8}} variable to be freed with Libc.free() after the PQmemfree() is 
+*
+*	used on the PQ.conninfoParse() to free the allocated Ptr{UInt8} object.
+*
+*=#
+function conninfoParse(conninfo::String, errmsg::Array{Ptr{UInt8}, 1})
+	return ccall((:PQconninfoParse, PostgreSQL.lib.libpq), Ptr{PQconninfoOption},
+	(Ptr{UInt8}, Ptr{Ptr{UInt8}},),
+	Base.unsafe_convert(Ptr{UInt8}, conninfo),Base.unsafe_convert(Ptr{Ptr{UInt8}}, errmsg));
 end
 
 #=*
