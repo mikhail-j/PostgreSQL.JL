@@ -17,6 +17,8 @@
 
 import PostgreSQL: PQOid;
 
+const InvalidOid		= PQOid(0);
+
 # OIDS 000 - 099 #
 const BOOLOID			= PQOid(16);			#bool
 const BYTEAOID			= PQOid(17);			#bytea
