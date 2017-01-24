@@ -393,7 +393,7 @@ end
 """
 	oidStatus() gets the string form of PQOid of the inserted row.
 	
-	This function is deprecated and not thread safe according to libpq documentation.
+	PQoidStatus() is deprecated and not thread safe according to libpq documentation.
 
 """
 function oidStatus(res::Ptr{PGresult})
@@ -403,6 +403,25 @@ end
 #get PQOid of the inserted row if the SQL command was INSERT a EXECUTE on a prepared INSERT SQL command that inserted only 1 row, returns InvalidOid otherwise
 function oidValue(res::Ptr{PGresult})
 	return ccall((:PQoidValue, PostgreSQL.lib.libpq), PQOid, (Ptr{PGresult},), res);
+end
+
+#=*
+*	These functions check the server and libpq version as well as protocol version.
+*=#
+
+#get the protocol version from a libpq connection
+function protocolVersion(conn::Ptr{PGconn})
+	return ccall((:PQprotocolVersion, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
+#get the server version from a libpq connection as a Cint
+function serverVersion(conn::Ptr{PGconn})
+	return ccall((:PQserverVersion, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
+#get the libpq version currently in use as a Cint
+function libVersion()
+	return ccall((:PQlibVersion, PostgreSQL.lib.libpq), Cint, ());
 end
 
 #clean up given PGresult and free it
