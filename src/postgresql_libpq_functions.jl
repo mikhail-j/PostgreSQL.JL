@@ -505,7 +505,14 @@ end
 
 #get an array of SSL attribute names available
 function sslAttributeNames(conn::Ptr{PGconn})
-	return ccall((:PQsslAttributeNames, PostgreSQL.lib.libpq), Ptr{Ptr{UInt8}}, (Ptr{PGconn},), conn);
+	local ptr_ptr = ccall((:PQsslAttributeNames, PostgreSQL.lib.libpq), Ptr{Ptr{UInt8}}, (Ptr{PGconn},), conn);
+	local index = 1;
+	local jstr_array = Array{String, 1}();
+	while (unsafe_load(ptr_ptr, index) != Ptr{UInt8}(C_NULL))		#keep converting pointers to julia strings until the pointer points at null
+		jstr_array = vcat(jstr_array, deepcopy(unsafe_string(unsafe_load(ptr_ptr, index))));
+		index = index + 1;
+	end
+	return jstr_array;
 end
 
 #=*
