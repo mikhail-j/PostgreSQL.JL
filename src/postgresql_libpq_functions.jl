@@ -150,6 +150,16 @@ function reset(conn::Ptr{PGconn})
 	ccall((:PQreset, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
 end
 
+#set whether libpq PGconn is non-blocking, returns 0 on success and -1 if something went wrong
+function setnonblocking(conn::Ptr{PGconn}, arg::Cint)
+	return ccall((:PQsetnonblocking, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint,), conn, arg);
+end
+
+#check if libpq PGconn is non-blocking
+function isnonblocking(conn::Ptr{PGconn})
+	return ccall((:PQisnonblocking, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
 #ping for status of postgresql server
 function ping(conninfo::String)
 	return ccall((:PQping, PostgreSQL.lib.libpq), PGPing, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
