@@ -117,8 +117,49 @@ function connectdbParams(filename::String)
 	return connectdbParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
 end
 
+#start blocking libpq connection, parameters set to null will use the default settings
+function setdbLogin(pghost::Ptr{UInt8}, pgport::Ptr{UInt8}, pgoptions::Ptr{UInt8}, pgtty::Ptr{UInt8}, dbName::Ptr{UInt8}, login::Ptr{UInt8}, pwd::Ptr{UInt8})
+	return ccall((:PQsetdbLogin, PostgreSQL.lib.libpq), Ptr{PGconn},
+		(Ptr{UInt8}, Ptr{UInt8}, Ptr{UInt8}, Ptr{UInt8}, Ptr{UInt8}, Ptr{UInt8}, Ptr{UInt8},),
+		pghost, pgport, pgoptions, pgtty, pgdbName, login, pwd);
+end
+
 #=*
-*	These functions give the status and information used to create the existing PGconn.
+*
+*	The following functions get the connection options used by PQ.connectdb() and returns a PQconninfoOption object.
+*
+*	The libpq documentation recommends that PQconninfoOption be freed with PQ.conninfoFree() to avoid memory leaks, https://www.postgresql.org/docs/9.5/static/libpq-connect.html
+*
+*=#
+
+#get the default connection options
+function conndefaults()
+	return ccall((:PQconndefaults, PostgreSQL.lib.libpq), Ptr{PQconninfoOption}, ());
+end
+
+#get the connection options used by given libpq connection
+function conninfo(conn::Ptr{PGconn})
+	return ccall((:PQconninfo, PostgreSQL.lib.libpq), Ptr{PQconninfoOption}, (Ptr{PGconn},), conn);
+end
+
+"""
+	conninfoParse() gets the connection options based on a valid PQconnectdb() connection string and returns NULL on success.
+
+	errmsg and the returned Ptr{PQconninfoOption} are C_NULL when the function failed to allocate enough memory.
+
+	The libpq documentation recommends that the allocated errmsg should be freed by PQ.freemem() and the allocated Ptr{PQconninfoOption} be freed by PQ.conninfoFree().
+
+"""
+function conninfoParse(conninfo::Ptr{UInt8}, errmsg::Ptr{Ptr{UInt8}})
+	return ccall((:PQconninfoParse, PostgreSQL.lib.libpq), Ptr{PQconninfoOption}, (Ptr{UInt8}, Ptr{Ptr{UInt8}},), conninfo, errmsg);
+end
+
+function conninfoParse(conninfo::String, errmsg::Ptr{Ptr{UInt8}})
+	return ccall((:PQconninfoParse, PostgreSQL.lib.libpq), Ptr{PQconninfoOption}, (Ptr{UInt8}, Ptr{Ptr{UInt8}},), Base.unsafe_convert(Ptr{UInt8}, conninfo), errmsg);
+end
+
+#=*
+*	The following functions give the status and information used to create the existing PGconn.
 *=#
 
 #get status of libpq PGconn
