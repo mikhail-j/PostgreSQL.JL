@@ -31,6 +31,10 @@ function countParams(filename::String)
 	return count;
 end
 
+#=*
+*	These functions create a non-blocking socket libpq connection (PGconn).
+*=#
+
 #start non-blocking libpq connection
 function connectStart(conninfo::String)
 	return ccall((:PQconnectStart, PostgreSQL.lib.libpq), Ptr{PGconn}, (Ptr{UInt8},), Base.unsafe_convert(Ptr{UInt8}, conninfo));
@@ -49,8 +53,8 @@ function connectStartParams(filename::String)
 	local param_count = countParams(filename);
 	local keywords = Array(Ptr{UInt8}, param_count+Int64(1));
 	local values = Array(Ptr{UInt8}, param_count+Int64(1));
-	file_ref = open(filename, "r");
-	array_index = Int64(1);
+	local file_ref = open(filename, "r");
+	local array_index = Int64(1);
 	while (!eof(file_ref))
 		current_line = strip(readline(file_ref));
 		if (length(current_line) != 0 && current_line[1] != '#')
@@ -69,6 +73,10 @@ function connectStartParams(filename::String)
 	close(file_ref);
 	return connectStartParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
 end
+
+#=*
+*	These functions create a blocking socket libpq connection (PGconn).
+*=#
 
 #start blocking libpq connection
 function connectdb(conninfo::String)
@@ -109,15 +117,53 @@ function connectdbParams(filename::String)
 	return connectdbParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
 end
 
+#=*
+*	These functions give the status and information used to create the existing PGconn.
+*=#
 
 #get status of libpq PGconn
 function status(conn::Ptr{PGconn})
 	return ccall((:PQstatus, PostgreSQL.lib.libpq), ConnStatusType, (Ptr{PGconn},), conn);
 end
 
-#get transaction status of libpq PGconn
+#get server transaction status of libpq PGconn
 function transactionStatus(conn::Ptr{PGconn})
 	return ccall((:PQtransactionStatus, PostgreSQL.lib.libpq), PGTransactionStatusType, (Ptr{PGconn},), conn);
+end
+
+#get the database name associated with the libpq connection
+function db(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQdb, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
+end
+
+#get the username of the libpq connection
+function user(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQuser, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
+end
+
+#get the password of the libpq connection
+function pass(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQpass, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
+end
+
+#get the server host of the libpq connection
+function host(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQhost, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
+end
+
+#get the port of the libpq connection
+function port(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQport, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
+end
+
+#get the debug tty of the connection, obsolete according to libpq documentation at https://www.postgresql.org/docs/9.5/static/libpq-status.html
+function tty(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQtty, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
+end
+
+#get the command-line options passed when the libpq connection was created
+function options(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQoptions, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
 end
 
 #get polling status of non-blocking libpq connection
@@ -142,12 +188,12 @@ end
 
 #free PGconn variable
 function finish(conn::Ptr{PGconn})
-	ccall((:PQfinish, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
+	return ccall((:PQfinish, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
 end
 
 #reset blocking libpq connection
 function reset(conn::Ptr{PGconn})
-	ccall((:PQreset, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
+	return ccall((:PQreset, PostgreSQL.lib.libpq), Void, (Ptr{PGconn},), conn);
 end
 
 #set whether libpq PGconn is non-blocking, returns 0 on success and -1 if something went wrong
@@ -183,8 +229,8 @@ function pingParams(filename::String)
 	local param_count = countParams(filename);
 	local keywords = Array(Ptr{UInt8}, param_count+Int64(1));
 	local values = Array(Ptr{UInt8}, param_count+Int64(1));
-	file_ref = open(filename, "r");
-	array_index = Int64(1);
+	local file_ref = open(filename, "r");
+	local array_index = Int64(1);
 	while (!eof(file_ref))
 		current_line = strip(readline(file_ref));
 		if (length(current_line) != 0 && current_line[1] != '#')
@@ -429,8 +475,48 @@ function clear(res::Ptr{PGresult})
 	return ccall((:PQclear, PostgreSQL.lib.libpq), Void, (Ptr{PGresult},), res);
 end
 
+#=*
+*	These functions interact with the SSL settings of the libpq connection.
+*=#
+
 #check if SSL is enabled on libpq connection
 function sslInUse(conn::Ptr{PGconn})
 	return ccall((:PQsslInUse, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
 end
 
+#=*
+*	The following are miscellaneous functions found on https://www.postgresql.org/docs/9.5/static/libpq-misc.html
+*=#
+
+"""
+	freemem() frees memory variables previously allocated by libpq.
+
+	The following converts pointers of type T to Ptr{Void} in consideration of the pointer difference between 32-bit and 64-bit systems.
+
+"""
+if (Sys.WORD_SIZE == 32)
+	function freemem{T}(ptr::Ptr{T})
+		return ccall((:PQfreemem, PostgreSQL.lib.libpq), Void, (Ptr{Void},), Ptr{Void}(convert(UInt32, ptr)));
+	end
+elseif (Sys.WORD_SIZE == 64)
+	function freemem{T}(ptr::Ptr{T})
+		return ccall((:PQfreemem, PostgreSQL.lib.libpq), Void, (Ptr{Void},), Ptr{Void}(convert(UInt64, ptr)));
+	end
+end
+
+#free the given PQconninfoOption object
+function conninfoFree(connOptions::Ptr{PQconninfoOption})
+	return ccall((:PQconninfoFree, PostgreSQL.lib.libpq), Void, (Ptr{PQconninfoOption},), connOptions);
+end
+
+"""
+	encryptPassword() creates a encrypted form of the password based on the username and password given.
+
+	The libpq documentation recommends that returned Ptr{UInt8} be freed by PQfreemem().
+
+	PQencryptPassword() returns C_NULL if malloc failed to allocate enough memory.
+
+"""
+function encryptPassword(passwd::Ptr{UInt8}, user::Ptr{UInt8})
+	return ccall((:PQencryptPassword, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{UInt8}, Ptr{UInt8},), passwd, user);
+end
