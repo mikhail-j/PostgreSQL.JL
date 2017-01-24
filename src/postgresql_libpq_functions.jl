@@ -166,6 +166,16 @@ function options(conn::Ptr{PGconn})
 	return unsafe_string(ccall((:PQoptions, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
 end
 
+#check if failed libpq connection required a password, returns 1 if true and 0 otherwise
+function connectionNeedsPassword(conn::Ptr{PGconn})
+	return ccall((:PQconnectionNeedsPassword, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn);
+end
+
+#check if failed libpq connection used a password, returns 1 if true and 0 otherwise
+function connectionUsedPassword(conn::Ptr{PGconn})
+	return ccall((:PQconnectionUsedPassword, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn);
+end
+
 #get polling status of non-blocking libpq connection
 function connectPoll(conn::PGconn)
 	return ccall((:PQconnectPoll, PostgreSQL.lib.libpq), PostgresPollingStatusType, (Ptr{PGconn},), conn);
