@@ -494,6 +494,20 @@ function sslInUse(conn::Ptr{PGconn})
 	return ccall((:PQsslInUse, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
 end
 
+#get SSL attribute of libpq connection
+function sslAttribute(conn::Ptr{PGconn}, attribute_name::Ptr{UInt8})
+	return unsafe_string(ccall((:PQsslAttribute, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8},), conn, attribute_name));
+end
+
+function sslAttribute(conn::Ptr{PGconn}, attribute_name::String)
+	return unsafe_string(ccall((:PQsslAttribute, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, attribute_name)));
+end
+
+#get an array of SSL attribute names available
+function sslAttributeNames(conn::Ptr{PGconn})
+	return ccall((:PQsslAttributeNames, PostgreSQL.lib.libpq), Ptr{Ptr{UInt8}}, (Ptr{PGconn},), conn);
+end
+
 #=*
 *	The following are miscellaneous functions found on https://www.postgresql.org/docs/9.5/static/libpq-misc.html
 *=#
