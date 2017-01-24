@@ -262,9 +262,47 @@ function resultErrorField(res::Ptr{PGresult}, fieldcode::Char)
 	return unsafe_string(ccall((:PQresultErrorField, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult}, Cint,), res, Cint(fieldcode)));
 end
 
-#get string form of PQresult error message
-function resultErrorMessage(res::Ptr{PGresult})
-	return unsafe_string(ccall((:PQresultErrorMessage, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult},), res));
+#=*
+*	These functions help retrieve data from query results (PGresult).
+*=#
+
+#get number of rows in query result
+function ntuples(res::Ptr{PGresult})
+	return ccall((:PQntuples, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult},), res);
+end
+
+#get number of columns in query result
+function nfields(res::Ptr{PGresult})
+	return ccall((:PQnfields, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult},), res);
+end
+
+"""
+	binaryTuples() checks if query result contains binary data or text data, returns 1 only if all columns are binary.
+	
+	PQbinaryTuples() is not recommended in libpq documentation, https://www.postgresql.org/docs/9.5/static/libpq-exec.html
+	
+"""
+function binaryTuples(res::Ptr{PGresult})
+	return ccall((:PQbinaryTuples, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult},), res);
+end
+
+"""
+	fname() gets the string form of the column name associated with a given column number.
+
+	Column numbers start at 0, https://www.postgresql.org/docs/9.5/static/libpq-exec.html
+	
+"""
+function fname(res::Ptr{PGresult}, field_num::Cint)
+	return unsafe_string(ccall((:PQfname, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGresult}, Cint,), res, field_num));
+end
+
+#get column number of column name, returns -1 if no columns matched
+function fnumber(res::Ptr{PGresult}, column_name::Ptr{UInt8})
+	return ccall((:PQfnumber, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Ptr{UInt8},), res, column_name);
+end
+
+function fnumber(res::Ptr{PGresult}, column_name::String)
+	return ccall((:PQfnumber, PostgreSQL.lib.libpq), Cint, (Ptr{PGresult}, Ptr{UInt8},), res, Base.unsafe_convert(Ptr{UInt8}, column_name));
 end
 
 #clean up given PGresult and free it
