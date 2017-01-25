@@ -125,6 +125,25 @@ function setdbLogin(pghost::Ptr{UInt8}, pgport::Ptr{UInt8}, pgoptions::Ptr{UInt8
 end
 
 #=*
+*	The following functions are to be used with non-blocking libpq connections.
+*=#
+
+#get the polling status of non-blocking libpq connection
+function connectPoll(conn::PGconn)
+	return ccall((:PQconnectPoll, PostgreSQL.lib.libpq), PostgresPollingStatusType, (Ptr{PGconn},), conn);
+end
+
+#reset non-blocking libpq connection, returns 1 if connection reset started and 0 if connection reset attempt failed
+function resetStart(conn::Ptr{PGconn})
+	return ccall((:PQresetStart, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
+#get the polling status of resetting libpq connection
+function resetPoll(conn::Ptr{PGconn})
+	return ccall((:PQresetPoll, PostgreSQL.lib.libpq), PostgresPollingStatusType, (Ptr{PGconn},), conn);
+end
+
+#=*
 *
 *	The following functions get the connection options used by PQ.connectdb() and returns a PQconninfoOption object.
 *
@@ -268,11 +287,6 @@ end
 #check if failed libpq connection used a password, returns 1 if true and 0 otherwise
 function connectionUsedPassword(conn::Ptr{PGconn})
 	return ccall((:PQconnectionUsedPassword, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn);
-end
-
-#get polling status of non-blocking libpq connection
-function connectPoll(conn::PGconn)
-	return ccall((:PQconnectPoll, PostgreSQL.lib.libpq), PostgresPollingStatusType, (Ptr{PGconn},), conn);
 end
 
 #get usable PGcancel object from a PGconn object
