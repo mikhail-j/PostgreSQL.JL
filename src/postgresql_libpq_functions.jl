@@ -158,6 +158,29 @@ function isBusy(conn::Ptr{PGconn})
 	return ccall((:PQisBusy, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
 end
 
+#get the next available query result on non-blocking socket libpq connection, returns null if there are currently no more results
+function getResult(conn::Ptr{PGconn})
+	return ccall((:PQgetResult, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn},), conn);
+end
+
+#send query for information on previously prepared statement from a statement name, returns 1 if sent and 0 otherwise
+function sendDescribePrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8})
+	return ccall((:PQsendDescribePrepared, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, stmtName);
+end
+
+function sendDescribePrepared(conn::Ptr{PGconn}, stmtName::String)
+	return ccall((:PQsendDescribePrepared, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, stmtName));
+end
+
+#send query for information on existing cursor from given portal name and doesn't wait for the result, returns 1 if sent and 0 otherwise
+function sendDescribePortal(conn::Ptr{PGconn}, portalName::Ptr{UInt8})
+	return ccall((:PQsendDescribePortal, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, portalName);
+end
+
+function sendDescribePortal(conn::Ptr{PGconn}, portalName::String)
+	return ccall((:PQsendDescribePortal, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, portalName));
+end
+
 #=*
 *
 *	The following functions get the connection options used by PQ.connectdb() and returns a PQconninfoOption object.
