@@ -143,6 +143,21 @@ function resetPoll(conn::Ptr{PGconn})
 	return ccall((:PQresetPoll, PostgreSQL.lib.libpq), PostgresPollingStatusType, (Ptr{PGconn},), conn);
 end
 
+"""
+	consumeInput() tries to consume input on the non-blocking socket of the libpq connection and returns 1 if nothing wrong occurred and 0 otherwise.
+	
+	The libpq documentation explains that PQ.errorMessage() can check what error occurred when PQ.consumeInput() returned 0, https://www.postgresql.org/docs/9.5/static/libpq-async.html
+	
+"""
+function consumeInput(conn::Ptr{PGconn})
+	return ccall((:PQconsumeInput, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
+#check if using getResult() on the non-blocking socket libpq connection will wait for server input, returns 1 if query result is not ready and 0 if the query result is ready
+function isBusy(conn::Ptr{PGconn})
+	return ccall((:PQisBusy, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
 #=*
 *
 *	The following functions get the connection options used by PQ.connectdb() and returns a PQconninfoOption object.
@@ -204,6 +219,11 @@ end
 #get server transaction status of libpq PGconn
 function transactionStatus(conn::Ptr{PGconn})
 	return ccall((:PQtransactionStatus, PostgreSQL.lib.libpq), PGTransactionStatusType, (Ptr{PGconn},), conn);
+end
+
+#try to flush the queued output data on the libpq connection, returns 0 on success and 1 if queue could not be completely flushed (this could occur on non-blocking) and -1 if the flush attempt failed
+function flush(conn::Ptr{PGconn})
+	return ccall((:PQflush, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
 end
 
 #get client encoding ID
