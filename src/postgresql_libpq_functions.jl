@@ -344,6 +344,10 @@ function pingParams(filename::String)
 	return pingParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
 end
 
+#=*
+*	The following functions help send SQL commands, describe previously prepared SQL statements, and describe existing cursors on a blocking socket libpq connection.
+*=#
+
 #send SQL command over PGconn
 function exec(conn::Ptr{PGconn}, command::Ptr{UInt8})
 	return ccall((:PQexec, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8},), conn, command);
@@ -368,6 +372,28 @@ function execPrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, nParams::Cint, pa
 			(Ptr{PGconn}, Ptr{UInt8}, Cint, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
 			conn, stmtName, nParams, paramValues, paramLengths, paramFormats, resultFormat);
 end
+
+#get information on previously prepared statement, this functions blocks until completion
+function describePrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8})
+	return ccall((:PQdescribePrepared, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8},), conn, stmtName);
+end
+
+function describePrepared(conn::Ptr{PGconn}, stmtName::String)
+	return ccall((:PQdescribePrepared, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, stmtName));
+end
+
+#get information on existing cursor from given portal name, this function blocks until completion
+function describePortal(conn::Ptr{PGconn}, portalName::Ptr{UInt8})
+	return ccall((:PQdescribePortal, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8},), conn, portalName);
+end
+
+function describePortal(conn::Ptr{PGconn}, portalName::String)
+	return ccall((:PQdescribePortal, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, portalName));
+end
+
+#=*
+*	The following functions get the status of a query result and possible error messages.
+*=#
 
 #get PQresult status
 function resultStatus(res::Ptr{PGresult})
