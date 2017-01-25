@@ -51,7 +51,7 @@ immutable PGnotify
 	relname::Ptr{UInt8}
 	be_pid::Cint
 	extra::Ptr{UInt8}
-	next::Ptr{PGnotify}
+	next::Ptr{PGnotify}		#this field exists in the C struct declaration and is recommended against being used outside of libpq
 end
 
 #used by PQconndefaults(), PQconninfoParse(), and PQconninfo()

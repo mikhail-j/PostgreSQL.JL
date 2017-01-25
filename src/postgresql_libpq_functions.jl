@@ -181,6 +181,11 @@ function sendDescribePortal(conn::Ptr{PGconn}, portalName::String)
 	return ccall((:PQsendDescribePortal, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, portalName));
 end
 
+#check if there is a pending notification from a LISTEN or NOTIFY command previously submitted, returns null if there are no pending notifications
+function notifies(conn::Ptr{PGconn})
+	return ccall((:PQnotifies, PostgreSQL.lib.libpq), Ptr{PGnotifies}, (Ptr{PGconn},), conn);
+end
+
 #=*
 *
 *	The following functions get the connection options used by PQ.connectdb() and returns a PQconninfoOption object.
