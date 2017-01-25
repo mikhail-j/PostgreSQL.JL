@@ -250,6 +250,16 @@ function options(conn::Ptr{PGconn})
 	return unsafe_string(ccall((:PQoptions, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn));
 end
 
+#get the file descriptor of the socket used in a given libpq connection
+function socket(conn::Ptr{PGconn})
+	return ccall((:PQsocket, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
+#get the process ID of the postgresql server process
+function backendPID(conn::Ptr{PGconn})
+	return ccall((:PQbackendPID, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
+end
+
 #check if failed libpq connection required a password, returns 1 if true and 0 otherwise
 function connectionNeedsPassword(conn::Ptr{PGconn})
 	return ccall((:PQconnectionNeedsPassword, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn);
