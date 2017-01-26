@@ -262,6 +262,72 @@ function notifies(conn::Ptr{PGconn})
 end
 
 #=*
+*	The following functions help escape strings for certain characters that can cause unexpected behavior when parsed by the SQL parser.
+*=#
+
+"""
+	escapeLiteral() escapes a string that is to be used a value/entry.
+	
+	This function returns a pointer to a allocated string that should be freed with PQ.freemem() unless returned a null that occurs on error.
+	
+	The libpq documentation notes that a terminating zero byte that is found before length argument will make the function ignore the characters that occur afterwards
+
+"""
+function escapeLiteral(conn::Ptr{PGconn}, str::Ptr{UInt8}, len::Csize_t)
+	return ccall((:PQescapeLiteral, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t,), conn, str, len);
+end
+
+function escapeLiteral(conn::Ptr{PGconn}, str::String, len::Csize_t)
+	return ccall((:PQescapeLiteral, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t,), conn, Base.unsafe_convert(Ptr{UInt8}, str), len);
+end
+
+function escapeLiteral(conn::Ptr{PGconn}, str::String)
+	return ccall((:PQescapeLiteral, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t,), conn, Base.unsafe_convert(Ptr{UInt8}, str), Csize_t(length(str)));
+end
+
+
+"""
+	escapeIdentifier() escapes a string that is to be used a SQL identifier.
+	
+	This function returns a pointer to a allocated string that should be freed with PQ.freemem() unless returned a null that occurs on error.
+	
+	The libpq documentation notes that a terminating zero byte that is found before length argument will make the function ignore the characters that occur afterwards
+
+"""
+function escapeIdentifier(conn::Ptr{PGconn}, str::Ptr{UInt8}, len::Csize_t)
+	return ccall((:PQescapeIdentifier, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t,), conn, str, len);
+end
+
+function escapeIdentifier(conn::Ptr{PGconn}, str::String, len::Csize_t)
+	return ccall((:PQescapeIdentifier, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t,), conn, Base.unsafe_convert(Ptr{UInt8}, str), len);
+end
+
+function escapeIdentifier(conn::Ptr{PGconn}, str::String)
+	return ccall((:PQescapeIdentifier, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t,), conn, Base.unsafe_convert(Ptr{UInt8}, str), Csize_t(length(str)));
+end
+
+"""
+	escapeByteaConn() escapes the binary value/entry for use as a bytea literal in a SQL statement.
+	
+	This function returns a pointer to a allocated string that should be freed with PQ.freemem() unless returned a null that occurs on error.
+	
+	to_length will point to a number representing the length of the result returned including the terminating zero byte
+
+"""
+function escapeByteaConn(conn::Ptr{PGconn}, from::Ptr{UInt8}, from_length::Csize_t, to_length::Ptr{Ptr{Csize_t}})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Ptr{Csize_t}},), conn, from, from_length, to_length);
+end
+
+function escapeByteaConn(conn::Ptr{PGconn}, from::String, from_length::Csize_t, to_length::Ptr{Ptr{Csize_t}})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Ptr{Csize_t}},), conn, Base.unsafe_convert(Ptr{UInt8}, from), from_length, to_length);
+end
+
+function escapeByteaConn(conn::Ptr{PGconn}, from::String, to_length::Ptr{Ptr{Csize_t}})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Ptr{Csize_t}},),
+			conn, Base.unsafe_convert(Ptr{UInt8}, from), Csize_t(length(from)), to_length);
+end
+
+#=*
 *
 *	The following functions get the connection options used by PQ.connectdb() and returns a PQconninfoOption object.
 *
