@@ -163,6 +163,48 @@ function getResult(conn::Ptr{PGconn})
 	return ccall((:PQgetResult, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn},), conn);
 end
 
+"""
+	sendQuery() sends SQL commands over non-blocking libpq connection, returns 1 if function successfully sent the commands and 0 otherwise.
+	
+	The libpq source code (src/interfaces/libpq/libpq-fe.h) notes that multiple commands in a single PQ.sendQuery() call will generate multiple PGresults objects.
+
+"""
+function sendQuery(conn::Ptr{PGconn}, query::Ptr{UInt8})
+	return ccall((:PQsendQuery, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, query);
+end
+
+function sendQuery(conn::Ptr{PGconn}, query::String)
+	return ccall((:PQsendQuery, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, query));
+end
+
+"""
+	sendQueryParams() sends a SQL command over non-blocking libpq connection, returns 1 if sent and 0 otherwise.
+	
+	The libpq documentation explains that PQ.sendQueryParams() will only accept 1 command unlike PQ.sendQuery().
+	
+	PQ.sendQueryParams() handles the parameter arguments in a identical fashion to PQ.execParams() and it's arguments.
+
+"""
+function sendQueryParams(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, query::Ptr{UInt8}, nParams::Cint, paramTypes::Ptr{PGOid}, paramValues::Ptr{Ptr{UInt8}}, paramLengths::Ptr{Cint}, paramFormats::Ptr{Cint}, resultFormat::Cint)
+	return ccall((:PQsendQueryParams, PostgreSQL.lib.libpq), Cint,
+		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PGOid}, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
+		conn, stmtName, query, nParams, paramTypes, paramValues, paramLengths, paramFormats, resultFormat);
+end
+
+function sendQueryParams(conn::Ptr{PGconn}, stmtName::String, query::String, nParams::Cint, paramTypes::Array{PGOid, 1}, paramValues::Array{Ptr{UInt8}, 1}, paramLengths::Array{Cint, 1}, paramFormats::Array{Cint, 1}, resultFormat::Cint)
+	return ccall((:PQsendQueryParams, PostgreSQL.lib.libpq), Cint,
+		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PGOid}, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
+			conn,
+			Base.unsafe_convert(Ptr{UInt8}, stmtName),
+			Base.unsafe_convert(Ptr{UInt8}, query),
+			nParams,
+			Base.unsafe_convert(Ptr{PGOid}, paramTypes),
+			Base.unsafe_convert(Ptr{Ptr{UInt8}}, paramValues),
+			Base.unsafe_convert(Ptr{Cint}, paramLengths),
+			Base.unsafe_convert(Ptr{Cint}, paramFormats),
+			resultFormat);
+end
+
 #send query for information on previously prepared statement from a statement name, returns 1 if sent and 0 otherwise
 function sendDescribePrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8})
 	return ccall((:PQsendDescribePrepared, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, stmtName);
@@ -420,16 +462,34 @@ end
 *	The following functions help send SQL commands, describe previously prepared SQL statements, and describe existing cursors on a blocking socket libpq connection.
 *=#
 
-#send SQL command over PGconn
+#send SQL command over PGconn, returns a query result unless memory could not be allocated and returned a null
 function exec(conn::Ptr{PGconn}, command::Ptr{UInt8})
 	return ccall((:PQexec, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8},), conn, command);
 end
 
+function exec(conn::Ptr{PGconn}, command::String)
+	return ccall((:PQexec, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, command));
+end
+
+#send SQL command with parameters as arguments over libpq connection, returns a query result unless memory could not be allocated and returned a null
 function execParams(conn::Ptr{PGconn}, command::Ptr{UInt8}, nParams::Cint, paramValues::Ptr{Ptr{UInt8}}, paramLengths::Ptr{Cint}, paramFormats::Ptr{Cint}, resultFormat::Cint)
 	return ccall((:PQexecParams, PostgreSQL.lib.libpq),
 					Ptr{PGresult},
 					(Ptr{PGconn}, Ptr{UInt8}, Cint, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
 					conn, command, nParams, paramValues, paramLengths, paramFormats, resultFormat);
+end
+
+function execParams(conn::Ptr{PGconn}, command::String, nParams::Cint, paramValues::Array{Ptr{UInt8}, 1}, paramLengths::Array{Cint, 1}, paramFormats::Array{Cint, 1}, resultFormat::Cint)
+	return ccall((:PQexecParams, PostgreSQL.lib.libpq),
+			Ptr{PGresult},
+			(Ptr{PGconn}, Ptr{UInt8}, Cint, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
+			conn,
+			Base.unsafe_convert(Ptr{UInt8}, command),
+			nParams,
+			Base.unsafe_convert(Ptr{Ptr{UInt8}}, paramValues),
+			Base.unsafe_convert(Ptr{Cint}, paramLengths),
+			Base.unsafe_convert(Ptr{Cint}, paramFormats),
+			resultFormat);
 end
 
 #prepare SQL statement, function blocks until PGresult is received (unless returned C_NULL)
