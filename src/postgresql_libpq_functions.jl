@@ -641,6 +641,16 @@ function pingParams(filename::String)
 	return pingParams(Base.unsafe_convert(Ptr{Ptr{UInt8}}, keywords), Base.unsafe_convert(Ptr{Ptr{UInt8}}, values), Cint(0));
 end
 
+"""
+	fn() executes a given server function through fast-path interface and returns a query result.
+
+	The libpq documentation considers this interface obsolete, https://www.postgresql.org/docs/9.5/static/libpq-fastpath.html
+
+"""
+function fn(conn::Ptr{PGconn}, fnid::Cint, result_buf::Ptr{Cint}, result_len::Ptr{Cint}, result_is_int::Cint, args::Ptr{PQArgBlock}, nargs::Cint)
+	return ccall((:PQfn, PostgreSQL.lib.libpq), Ptr{PGresult}, (Ptr{PGconn}, Cint, Ptr{Cint}, Ptr{Cint}, Cint, Ptr{PQArgBlock}, Cint,), conn, fnid, result_buf, result_len, result_is_int, args, nargs);
+end
+
 #=*
 *	The following functions help send SQL commands, describe previously prepared SQL statements, and describe existing cursors on a blocking socket libpq connection.
 *=#
