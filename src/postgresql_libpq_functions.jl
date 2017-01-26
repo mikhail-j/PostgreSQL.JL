@@ -897,6 +897,86 @@ function oidValue(res::Ptr{PGresult})
 end
 
 #=*
+*	The following functions interact with PostgreSQL large objects interface.
+*=#
+
+function lo_open(conn::Ptr{PGconn}, lobjId::PQOid, mode::Cint)
+	return ccall((:lo_open, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, PQOid, Cint,), conn, lobjId, mode);
+end
+
+function lo_close(conn::Ptr{PGconn}, fd::Cint)
+	return ccall((:lo_close, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint,), conn, fd);
+end
+
+function lo_read(conn::Ptr{PGconn}, fd::Cint, buf::Ptr{UInt8}, len::Csize_t)
+	return ccall((:lo_read, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint, Ptr{UInt8}, Csize_t,), conn, fd, buf, len);
+end
+
+function lo_write(conn::Ptr{PGconn}, fd::Cint, buf::Ptr{UInt8}, len::Csize_t)
+	return ccall((:lo_write, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint, Ptr{UInt8}, Csize_t,), conn, fd, buf, len);
+end
+
+function lo_lseek(conn::Ptr{PGconn}, fd::Cint, offset::Cint, whence::Cint)
+	return ccall((:lo_lseek, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint, Cint, Cint,), conn, fd, offset, whence);
+end
+
+function lo_lseek64(conn::Ptr{PGconn}, fd::Cint, offset::pg_int64, whence::Cint)
+	return ccall((:lo_lseek64, PostgreSQL.lib.libpq), pg_int64, (Ptr{PGconn}, Cint, pg_int64, Cint,), conn, fd, offset, whence);
+end
+
+function lo_creat(conn::Ptr{PGconn}, mode::Cint)
+	return ccall((:lo_creat, PostgreSQL.lib.libpq), PQOid, (Ptr{PGconn}, Cint,), conn, mode);
+end
+
+function lo_create(conn::Ptr{PGconn}, lobjId::PQOid)
+	return ccall((:lo_create, PostgreSQL.lib.libpq), PQOid, (Ptr{PGconn}, PQOid,), conn, lobjId);
+end
+
+function lo_tell(conn::Ptr{PGconn}, fd::Cint)
+	return ccall((:lo_tell, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint,), conn, fd);
+end
+
+function lo_tell64(conn::Ptr{PGconn}, fd::Cint)
+	return ccall((:lo_tell64, PostgreSQL.lib.libpq), pg_int, (Ptr{PGconn}, Cint,), conn, fd);
+end
+
+function lo_truncate(conn::Ptr{PGconn}, fd::Cint, len::Csize_t)
+	return ccall((:lo_truncate, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint, Csize_t,), conn, fd, len);
+end
+
+function lo_truncate64(conn::Ptr{PGconn}, fd::Cint, len::pg_int64)
+	return ccall((:lo_truncate64, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Cint, pg_int64,), conn, fd, len);
+end
+
+function lo_unlink(conn::Ptr{PGconn}, lobjId::PQOid)
+	return ccall((:lo_unlink, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, PQOid,), conn, lobjId);
+end
+
+function lo_import(conn::Ptr{PGconn}, filename::Ptr{UInt8})
+	return ccall((:lo_import, PostgreSQL.lib.libpq), PQOid, (Ptr{PGconn}. Ptr{UInt8},), conn, filename);
+end
+
+function lo_import(conn::Ptr{PGconn}, filename::String)
+	return ccall((:lo_import, PostgreSQL.lib.libpq), PQOid, (Ptr{PGconn}. Ptr{UInt8},), conn, Base.unsafe_convert(Ptr{UInt8}, filename));
+end
+
+function lo_import_with_oid(conn::Ptr{PGconn}, filename::Ptr{UInt8}, lobjId::PQOid)
+	return ccall((:lo_import_with_oid, PostgreSQL.lib.libpq), PQOid, (Ptr{PGconn}, Ptr{UInt8}, PQOid,), conn, filename, lobjId);
+end
+
+function lo_import_with_oid(conn::Ptr{PGconn}, filename::String, lobjId::PQOid)
+	return ccall((:lo_import_with_oid, PostgreSQL.lib.libpq), PQOid, (Ptr{PGconn}, Ptr{UInt8}, PQOid,), conn, Base.unsafe_convert(Ptr{UInt8}, filename), lobjId);
+end
+
+function lo_export(conn::Ptr{PGconn}, lobjId::PQOid, filename::Ptr{UInt8})
+	return ccall((:lo_export, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, PQOid, Ptr{UInt8},), conn, lobjId, filename);
+end
+
+function lo_export(conn::Ptr{PGconn}, lobjId::PQOid, filename::String)
+	return ccall((:lo_export, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, PQOid, Ptr{UInt8},), conn, lobjId, Base.unsafe_convert(Ptr{UInt8}, filename));
+end
+
+#=*
 *	These functions check the server and libpq version as well as protocol version.
 *=#
 

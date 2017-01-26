@@ -22,6 +22,7 @@ typealias PGconn Ptr{Void};
 typealias PGresult Ptr{Void};
 typealias PGcancel Ptr{Void};
 typealias pqbool UInt8;
+typealias pg_int64 Int64;
 typealias PQOid Cuint;
 
 typealias ConnStatusType Cuint;
