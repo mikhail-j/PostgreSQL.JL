@@ -15,7 +15,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 *=#
 
-export PGconn, PGresult, PGcancel, pqbool, PQOid, PQprintOpt, PGnotify, PQnotify, PQconninfoOption, PQArgBlockInt, PQArgBlock, PGresAttDesc,
+export PGconn, PGresult, PGcancel, pqbool, pg_int64, PQOid, PQprintOpt, PGnotify, PQnotify, PQconninfoOption, PQArgBlockInt, PQArgBlock, PGresAttDesc,
 	ConnStatusType, PostgresPollingStatusType, ExecStatusType, PGTransactionStatusType, PGVerbosity, PGContextVisibility, PGPing, PGErrorField;
 
 typealias PGconn Ptr{Void};
