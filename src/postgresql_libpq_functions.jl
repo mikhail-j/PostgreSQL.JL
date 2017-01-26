@@ -185,20 +185,20 @@ end
 	PQ.sendQueryParams() handles the parameter arguments in a identical fashion to PQ.execParams() and it's arguments.
 
 """
-function sendQueryParams(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, query::Ptr{UInt8}, nParams::Cint, paramTypes::Ptr{PGOid}, paramValues::Ptr{Ptr{UInt8}}, paramLengths::Ptr{Cint}, paramFormats::Ptr{Cint}, resultFormat::Cint)
+function sendQueryParams(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, query::Ptr{UInt8}, nParams::Cint, paramTypes::Ptr{PQOid}, paramValues::Ptr{Ptr{UInt8}}, paramLengths::Ptr{Cint}, paramFormats::Ptr{Cint}, resultFormat::Cint)
 	return ccall((:PQsendQueryParams, PostgreSQL.lib.libpq), Cint,
-		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PGOid}, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
+		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PQOid}, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
 		conn, stmtName, query, nParams, paramTypes, paramValues, paramLengths, paramFormats, resultFormat);
 end
 
-function sendQueryParams(conn::Ptr{PGconn}, stmtName::String, query::String, nParams::Cint, paramTypes::Array{PGOid, 1}, paramValues::Array{Ptr{UInt8}, 1}, paramLengths::Array{Cint, 1}, paramFormats::Array{Cint, 1}, resultFormat::Cint)
+function sendQueryParams(conn::Ptr{PGconn}, stmtName::String, query::String, nParams::Cint, paramTypes::Array{PQOid, 1}, paramValues::Array{Ptr{UInt8}, 1}, paramLengths::Array{Cint, 1}, paramFormats::Array{Cint, 1}, resultFormat::Cint)
 	return ccall((:PQsendQueryParams, PostgreSQL.lib.libpq), Cint,
-		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PGOid}, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
+		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PQOid}, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
 			conn,
 			Base.unsafe_convert(Ptr{UInt8}, stmtName),
 			Base.unsafe_convert(Ptr{UInt8}, query),
 			nParams,
-			Base.unsafe_convert(Ptr{PGOid}, paramTypes),
+			Base.unsafe_convert(Ptr{PQOid}, paramTypes),
 			Base.unsafe_convert(Ptr{Ptr{UInt8}}, paramValues),
 			Base.unsafe_convert(Ptr{Cint}, paramLengths),
 			Base.unsafe_convert(Ptr{Cint}, paramFormats),
