@@ -266,7 +266,7 @@ end
 *=#
 
 """
-	escapeLiteral() escapes a string that is to be used a value/entry.
+	escapeLiteral() escapes a string that is to be used as a value/entry.
 	
 	This function returns a pointer to a allocated string that should be freed with PQ.freemem() unless returned a null that occurs on error.
 	
@@ -307,11 +307,47 @@ function escapeIdentifier(conn::Ptr{PGconn}, str::String)
 end
 
 """
+	escapeStringConn() escapes string literals for SQL commands and returns the number of bytes written to 'to' excluding the terminating zero byte.
+	
+	This function does not allocate the 'to' variable and should have at least 1 more than 2 times the 'len' argument.
+	
+	The 'err' argument will be set to zero on success and a nonzero integer otherwise.
+	
+	The libpq documentation notes that a terminating zero byte that is found before length argument will make the function ignore the characters that occur afterwards
+	
+"""
+function escapeStringConn(conn::Ptr{PGconn}, to::Ptr{UInt8}, from::Ptr{UInt8}, len::Csize_t, err::Ptr{Cint})
+	return ccall((:PQescapeStringConn, PostgreSQL.lib.libpq), Csize_t, (Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Csize_t, Ptr{Cint},), conn, to, from, len, err);
+end
+
+function escapeStringConn(conn::Ptr{PGconn}, to::Ptr{UInt8}, from::String, len::Csize_t, err::Ptr{Cint})
+	return ccall((:PQescapeStringConn, PostgreSQL.lib.libpq), Csize_t, (Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Csize_t, Ptr{Cint},), conn, to, Base.unsafe_convert(Ptr{UInt8}, from), len, err);
+end
+
+#=*
+*
+*	A Cint array of 1 element is an alternative to a allocated Ptr{Cint} object returned by Libc.malloc(sizeof(Ptr{Cint})).
+*
+*	Using an allocated memory space returned by Libc.malloc() requires the Ptr{Cint} variable to be freed with Libc.free().
+*
+*=#
+function escapeStringConn(conn::Ptr{PGconn}, to::Ptr{UInt8}, from::Ptr{UInt8}, len::Csize_t, err::Array{Cint, 1})
+	return ccall((:PQescapeStringConn, PostgreSQL.lib.libpq), Csize_t,
+		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Csize_t, Ptr{Cint},), conn, to, from, len, Base.unsafe_convert(Ptr{Cint}, err));
+end
+
+function escapeStringConn(conn::Ptr{PGconn}, to::Ptr{UInt8}, from::String, len::Csize_t, err::Array{Cint, 1})
+	return ccall((:PQescapeStringConn, PostgreSQL.lib.libpq), Csize_t,
+		(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Csize_t, Ptr{Cint},), conn, to, Base.unsafe_convert(Ptr{UInt8}, from), len, Base.unsafe_convert(Ptr{Cint}, err));
+end
+
+
+"""
 	escapeByteaConn() escapes the binary value/entry for use as a bytea literal in a SQL statement.
 	
 	This function returns a pointer to a allocated string that should be freed with PQ.freemem() unless returned a null that occurs on error.
 	
-	to_length will point to a number representing the length of the result returned including the terminating zero byte
+	to_length will point to a number representing the length of the result returned including the terminating zero byte.
 
 """
 function escapeByteaConn(conn::Ptr{PGconn}, from::Ptr{UInt8}, from_length::Csize_t, to_length::Ptr{Csize_t})
@@ -334,9 +370,45 @@ end
 *	Using an allocated memory space returned by Libc.malloc() requires the Ptr{Csize_t} variable to be freed with Libc.free().
 *
 *=#
+function escapeByteaConn(conn::Ptr{PGconn}, from::Ptr{UInt8}, from_length::Csize_t, to_length::Array{Csize_t, 1})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Csize_t},),
+			conn, from, from_length, Base.unsafe_convert(Ptr{Csize_t}, to_length));
+end
+
 function escapeByteaConn(conn::Ptr{PGconn}, from::String, to_length::Array{Csize_t, 1})
 	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Csize_t},),
 			conn, Base.unsafe_convert(Ptr{UInt8}, from), Csize_t(length(from)), Base.unsafe_convert(Ptr{Csize_t}, to_length));
+end
+
+"""
+	unescapeBytea() unescapes the binary value/entry returned in text format rather than binary format.
+	
+	This function returns a pointer to a allocated string that should be freed with PQ.freemem() unless returned a null that occurs on error.
+	
+	to_length will point to a number representing the length of the result returned including the terminating zero byte.
+
+"""
+function unescapeBytea(from::Ptr{UInt8}, to_length::Ptr{Csize_t})
+	return ccall((:PQunescapeBytea, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{UInt8}, Ptr{Csize_t},), from, to_length);
+end
+
+function unescapeBytea(from::String, to_length::Ptr{Csize_t})
+	return ccall((:PQunescapeBytea, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{UInt8}, Ptr{Csize_t},), Base.unsafe_convert(Ptr{UInt8}, from), to_length);
+end
+
+#=*
+*
+*	A Csize_t array of 1 element is an alternative to a allocated Ptr{Csize_t} object returned by Libc.malloc(sizeof(Ptr{Csize_t})).
+*
+*	Using an allocated memory space returned by Libc.malloc() requires the Ptr{Csize_t} variable to be freed with Libc.free().
+*
+*=#
+function unescapeBytea(from::Ptr{UInt8}, to_length::Array{Csize_t, 1})
+	return ccall((:PQunescapeBytea, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{UInt8}, Ptr{Csize_t},), from, Base.unsafe_convert(Ptr{Csize_t}, to_length));
+end
+
+function unescapeBytea(from::String, to_length::Array{Csize_t, 1})
+	return ccall((:PQunescapeBytea, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{UInt8}, Ptr{Csize_t},), Base.unsafe_convert(Ptr{UInt8}, from), Base.unsafe_convert(Ptr{Csize_t}, to_length));
 end
 
 #=*
