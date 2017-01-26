@@ -314,16 +314,16 @@ end
 	to_length will point to a number representing the length of the result returned including the terminating zero byte
 
 """
-function escapeByteaConn(conn::Ptr{PGconn}, from::Ptr{UInt8}, from_length::Csize_t, to_length::Ptr{Ptr{Csize_t}})
-	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Ptr{Csize_t}},), conn, from, from_length, to_length);
+function escapeByteaConn(conn::Ptr{PGconn}, from::Ptr{UInt8}, from_length::Csize_t, to_length::Ptr{Csize_t})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Csize_t},), conn, from, from_length, to_length);
 end
 
-function escapeByteaConn(conn::Ptr{PGconn}, from::String, from_length::Csize_t, to_length::Ptr{Ptr{Csize_t}})
-	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Ptr{Csize_t}},), conn, Base.unsafe_convert(Ptr{UInt8}, from), from_length, to_length);
+function escapeByteaConn(conn::Ptr{PGconn}, from::String, from_length::Csize_t, to_length::Ptr{Csize_t})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Csize_t},), conn, Base.unsafe_convert(Ptr{UInt8}, from), from_length, to_length);
 end
 
-function escapeByteaConn(conn::Ptr{PGconn}, from::String, to_length::Ptr{Ptr{Csize_t}})
-	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Ptr{Csize_t}},),
+function escapeByteaConn(conn::Ptr{PGconn}, from::String, to_length::Ptr{Csize_t})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Csize_t},),
 			conn, Base.unsafe_convert(Ptr{UInt8}, from), Csize_t(length(from)), to_length);
 end
 
