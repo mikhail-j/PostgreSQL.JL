@@ -205,6 +205,39 @@ function sendQueryParams(conn::Ptr{PGconn}, stmtName::String, query::String, nPa
 			resultFormat);
 end
 
+#try to prepare a SQL statement with a statement name and query string and doesn't wait for the result, returns 1 if sent and 0 otherwise
+function sendPrepare(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, query::Ptr{UInt8}, nParams::Cint, paramTypes::Ptr{PQOid})
+	return ccall((:PQsendPrepare, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PQOid},), conn, stmtName, query, nParams, paramTypes);
+end
+
+function sendPrepare(conn::Ptr{PGconn}, stmtName::String, query::String, nParams::Cint, paramTypes::Array{PQOid,1})
+	return ccall((:PQsendPrepare, PostgreSQL.lib.libpq), Cint,
+	(Ptr{PGconn}, Ptr{UInt8}, Ptr{UInt8}, Cint, Ptr{PQOid},),
+	conn,
+	Base.unsafe_convert(Ptr{UInt8}, stmtName),
+	Base.unsafe_convert(Ptr{UInt8}, query),
+	nParams,
+	Base.unsafe_convert(Ptr{PQOid}, paramTypes));
+end
+
+#try to execute a previously prepared SQL statement by statement name and parameter arguments and doesn't wait for the result, returns 1 if sent and 0 otherwise
+function sendQueryPrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8}, nParams::Cint, paramValues::Ptr{Ptr{UInt8}}, paramLengths::Ptr{Cint}, paramFormats::Ptr{Cint}, resultFormat::Cint)
+	return ccall((:PQsendQueryPrepared, PostgreSQL.lib.libpq), Cint,
+		(Ptr{PGconn}, Ptr{UInt8}, Cint, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,), conn, stmtName, nParams, paramValues, paramLengths, paramFormats, resultFormat);
+end
+
+function sendQueryPrepared(conn::Ptr{PGconn}, stmtName::String, nParams::Cint, paramValues::Array{Ptr{UInt8}, 1}, paramLengths::Array{Cint, 1}, paramFormats::Array{Cint, 1}, resultFormat::Cint)
+	return ccall((:PQsendQueryPrepared, PostgreSQL.lib.libpq), Cint,
+		(Ptr{PGconn}, Ptr{UInt8}, Cint, Ptr{Ptr{UInt8}}, Ptr{Cint}, Ptr{Cint}, Cint,),
+		conn,
+		Base.unsafe_convert(Ptr{UInt8}, stmtName),
+		nParams,
+		Base.unsafe_convert(Ptr{Ptr{UInt8}}, paramValues),
+		Base.unsafe_convert(Ptr{Cint}, paramLengths),
+		Base.unsafe_convert(Ptr{Cint}, paramFormats),
+		resultFormat);
+end
+
 #send query for information on previously prepared statement from a statement name, returns 1 if sent and 0 otherwise
 function sendDescribePrepared(conn::Ptr{PGconn}, stmtName::Ptr{UInt8})
 	return ccall((:PQsendDescribePrepared, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn}, Ptr{UInt8},), conn, stmtName);
