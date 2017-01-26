@@ -329,6 +329,18 @@ end
 
 #=*
 *
+*	A Csize_t array of 1 element is an alternative to a allocated Ptr{Csize_t} object returned by Libc.malloc(sizeof(Ptr{Csize_t})).
+*
+*	Using an allocated memory space returned by Libc.malloc() requires the Ptr{Csize_t} variable to be freed with Libc.free().
+*
+*=#
+function escapeByteaConn(conn::Ptr{PGconn}, from::String, to_length::Array{Csize_t, 1})
+	return ccall((:PQescapeByteaConn, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn}, Ptr{UInt8}, Csize_t, Ptr{Csize_t},),
+			conn, Base.unsafe_convert(Ptr{UInt8}, from), Csize_t(length(from)), Base.unsafe_convert(Ptr{Csize_t}, to_length));
+end
+
+#=*
+*
 *	The following functions get the connection options used by PQ.connectdb() and returns a PQconninfoOption object.
 *
 *	The libpq documentation recommends that PQconninfoOption be freed with PQ.conninfoFree() to avoid memory leaks, https://www.postgresql.org/docs/9.5/static/libpq-connect.html
