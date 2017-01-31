@@ -479,6 +479,11 @@ function flush(conn::Ptr{PGconn})
 	return ccall((:PQflush, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);
 end
 
+#get most recent error message that occurred on a given libpq connection
+function errorMessage(conn::Ptr{PGconn})
+	return unsafe_string(ccall((:PQerrorMessage, PostgreSQL.lib.libpq), Ptr{UInt8), (Ptr{PGconn},), conn);
+end
+
 #get client encoding ID
 function clientEncoding(conn::Ptr{PGconn})
 	return ccall((:PQclientEncoding, PostgreSQL.lib.libpq), Cint, (Ptr{PGconn},), conn);

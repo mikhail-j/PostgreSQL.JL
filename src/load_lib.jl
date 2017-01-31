@@ -21,6 +21,13 @@ paths = []
 
 if (is_windows())
 	paths = vcat("C:\\Program Files\\PostgreSQL\\9.5\\bin", paths);
+elseif (is_apple())
+	paths = vcat("/Library/PostgreSQL/9.1/lib/", paths);
+	paths = vcat("/Library/PostgreSQL/9.2/lib/", paths);
+	paths = vcat("/Library/PostgreSQL/9.3/lib/", paths);
+	paths = vcat("/Library/PostgreSQL/9.4/lib/", paths);
+	paths = vcat("/Library/PostgreSQL/9.5/lib/", paths);
+	paths = vcat("/Library/PostgreSQL/9.6/lib/", paths);
 end
 
 const libpq = Libdl.find_library(["libpq", "pq"], paths);
