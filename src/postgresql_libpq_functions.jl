@@ -481,7 +481,7 @@ end
 
 #get most recent error message that occurred on a given libpq connection
 function errorMessage(conn::Ptr{PGconn})
-	return unsafe_string(ccall((:PQerrorMessage, PostgreSQL.lib.libpq), Ptr{UInt8), (Ptr{PGconn},), conn);
+	return unsafe_string(ccall((:PQerrorMessage, PostgreSQL.lib.libpq), Ptr{UInt8}, (Ptr{PGconn},), conn);
 end
 
 #get client encoding ID
