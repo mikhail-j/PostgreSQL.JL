@@ -35,6 +35,14 @@ const CONNECTION_SSL_STARTUP			= ConnStatusType(7);
 const CONNECTION_NEEDED					= ConnStatusType(8);
 const CONNECTION_CHECK_WRITABLE			= ConnStatusType(9);
 
+#=*
+*
+*	To obtain the status name corresponding to status value, use PQ.CONNECTION_STATUSES[variable_value::ConnStatusType].
+*
+*	To obtain the corresponding status value by status name, use eval(PQ, Symbol(variable_name::String)).
+*
+*=#
+
 const CONNECTION_STATUSES = Dict([
 Tuple((CONNECTION_OK, "CONNECTION_OK")),
 Tuple((CONNECTION_BAD, "CONNECTION_BAD")),
@@ -55,6 +63,22 @@ const PGRES_POLLING_WRITING		= PostgresPollingStatusType(2);
 const PGRES_POLLING_OK			= PostgresPollingStatusType(3);
 const PGRES_POLLING_ACTIVE		= PostgresPollingStatusType(4);
 
+#=*
+*
+*	To obtain the status name corresponding to status value, use PQ.POLLING_STATUSES[variable_value::PostgresPollingStatusType].
+*
+*	To obtain the corresponding status value by status name, use eval(PQ, Symbol(variable_name::String)).
+*
+*=#
+
+const POLLING_STATUSES = Dict([
+Tuple((PGRES_POLLING_FAILED, "PGRES_POLLING_FAILED")),
+Tuple((PGRES_POLLING_READING, "PGRES_POLLING_READING")),
+Tuple((PGRES_POLLING_WRITING, "PGRES_POLLING_WRITING")),
+Tuple((PGRES_POLLING_OK, "PGRES_POLLING_OK")),
+Tuple((PGRES_POLLING_ACTIVE, "PGRES_POLLING_ACTIVE"))
+]);
+
 #statuses used by PQresultStatus()
 const PGRES_EMPTY_QUERY		= ExecStatusType(0);
 const PGRES_COMMAND_OK		= ExecStatusType(1);
@@ -67,12 +91,49 @@ const PGRES_FATAL_ERROR		= ExecStatusType(7);
 const PGRES_COPY_BOTH		= ExecStatusType(8);
 const PGRES_SINGLE_TUPLE	= ExecStatusType(9);
 
+#=*
+*
+*	To obtain the status name corresponding to status value, use PQ.RESULT_STATUSES[variable_value::ExecStatusType].
+*
+*	To obtain the corresponding status value by status name, use eval(PQ, Symbol(variable_name::String)).
+*
+*=#
+
+const RESULT_STATUSES = Dict([
+Tuple((PGRES_EMPTY_QUERY, "PGRES_EMPTY_QUERY")),
+Tuple((PGRES_COMMAND_OK, "PGRES_COMMAND_OK")),
+Tuple((PGRES_TUPLES_OK, "PGRES_TUPLES_OK")),
+Tuple((PGRES_COPY_OUT, "PGRES_COPY_OUT")),
+Tuple((PGRES_COPY_IN, "PGRES_COPY_IN")),
+Tuple((PGRES_BAD_RESPONSE, "PGRES_BAD_RESPONSE")),
+Tuple((PGRES_NONFATAL_ERROR, "PGRES_NONFATAL_ERROR")),
+Tuple((PGRES_FATAL_ERROR, "PGRES_FATAL_ERROR")),
+Tuple((PGRES_COPY_BOTH, "PGRES_COPY_BOTH")),
+Tuple((PGRES_SINGLE_TUPLE, "PGRES_SINGLE_TUPLE"))
+]);
+
 #statuses used by PQtransactionStatus()
 const PQTRANS_IDLE		= PGTransactionStatusType(0);
 const PQTRANS_ACTIVE	= PGTransactionStatusType(1);
 const PQTRANS_INTRANS	= PGTransactionStatusType(2);
 const PQTRANS_INERROR	= PGTransactionStatusType(3);
 const PQTRANS_UNKNOWN	= PGTransactionStatusType(4);
+
+#=*
+*
+*	To obtain the status name corresponding to status value, use PQ.TRANSACTION_STATUSES[variable_value::PGTransactionStatusType].
+*
+*	To obtain the corresponding status value by status name, use eval(PQ, Symbol(variable_name::String)).
+*
+*=#
+
+const TRANSACTION_STATUSES = Dict([
+Tuple((PQTRANS_IDLE, "PQTRANS_IDLE")),
+Tuple((PQTRANS_ACTIVE, "PQTRANS_ACTIVE")),
+Tuple((PQTRANS_INTRANS, "PQTRANS_INTRANS")),
+Tuple((PQTRANS_INERROR, "PQTRANS_INERROR")),
+Tuple((PQTRANS_UNKNOWN, "PQTRANS_UNKNOWN"))
+]);
 
 #options used by PQsetErrorVerbosity()
 const PQERRORS_TERSE	= PGVerbosity(0);
@@ -89,6 +150,21 @@ const PQPING_OK				= PGPing(0);
 const PQPING_REJECT			= PGPing(1);
 const PQPING_NO_RESPONSE	= PGPing(2);
 const PQPING_NO_ATTEMPT		= PGPing(3);
+
+#=*
+*
+*	To obtain the status name corresponding to status value, use PQ.PING_STATUSES[variable_value::PGPing].
+*
+*	To obtain the corresponding status value by status name, use eval(PQ, Symbol(variable_name::String)).
+*
+*=#
+
+const PING_STATUSES = Dict([
+Tuple((PQPING_OK, "PQPING_OK")),
+Tuple((PQPING_REJECT, "PQPING_REJECT")),
+Tuple((PQPING_NO_RESPONSE, "PQPING_NO_RESPONSE")),
+Tuple((PQPING_NO_ATTEMPT, "PQPING_NO_ATTEMPT"))
+]);
 
 #error field identifiers used by PQresultErrorField()
 const PG_DIAG_SEVERITY					= PGErrorField('S');
